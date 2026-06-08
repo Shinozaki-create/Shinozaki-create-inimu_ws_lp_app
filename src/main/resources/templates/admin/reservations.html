@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>予約管理</title>
+  <link rel="stylesheet" th:href="@{/admin/admin.css(v=${adminCssVersion})}">
+</head>
+<body>
+<header th:replace="~{admin/fragments :: header}"></header>
+<main class="page">
+  <div class="page-header-actions">
+    <h1><span th:replace="~{admin/fragments :: icon-reservations}"></span>予約管理</h1>
+    <a class="button reservation-add-button" th:href="@{/admin/reservations/new}">新規追加</a>
+  </div>
+
+  <form class="toolbar" th:action="@{/admin/reservations}" method="get" th:object="${condition}">
+    <div class="toolbar-date-fields" aria-label="日付検索">
+      <label class="toolbar-field toolbar-year-field">
+        年
+        <select th:field="*{year}" data-search-year>
+          <option value="">-</option>
+          <option th:each="year : ${#numbers.sequence(2026, 2035)}" th:value="${year}" th:text="${year}">2026</option>
+        </select>
+      </label>
+      <label class="toolbar-field">
+        月
+        <select th:field="*{month}" data-search-month>
+          <option value="">-</option>
+          <option th:each="month : ${#numbers.sequence(1, 12)}" th:value="${month}" th:text="${month}">1</option>
+        </select>
+      </label>
+      <label class="toolbar-field">
+        日
+        <select th:field="*{day}" data-search-day>
+          <option value="">-</option>
+          <option th:each="day : ${#numbers.sequence(1, 31)}" th:value="${day}" th:text="${day}">1</option>
+        </select>
+      </label>
+    </div>
+    <label>ステータス
+      <select th:field="*{status}">
+        <option value="">すべて</option>
+        <option th:each="status : ${reservationStatuses}" th:value="${status}" th:text="${status.label}">status</option>
+      </select>
+    </label>
+    <label>ふりがな・メール・予約番号
+      <input type="search" th:field="*{keyword}">
+    </label>
+    <input type="hidden" th:field="*{sort}">
+    <input type="hidden" th:field="*{direction}">
+    <button class="toolbar-submit" type="submit">検索</button>
+    <a class="button secondary" th:href="@{/admin/reservations(sort=${condition.sort},direction=${condition.direction})}">クリア</a>
+    <a class="button secondary" th:href="@{/admin/reservations/csv(year=${condition.year},month=${condition.month},day=${condition.day},status=${condition.status},keyword=${condition.keyword},sort=${condition.sort},direction=${condition.direction})}">CSV出力</a>
+  </form>
+
+  <section class="panel">
+    <div class="panel-body">
+      <table>
+        <thead>
+        <tr>
+          <th class="sortable-th">
+            <a class="sort-link" th:href="@{/admin/reservations(year=${condition.year},month=${condition.month},day=${condition.day},status=${condition.status},keyword=${condition.keyword},sort='reservationCode',direction=${condition.sort == 'reservationCode' and condition.direction == 'asc' ? 'desc' : 'asc'})}">
+              予約番号
+              <span class="sort-indicator" th:if="${condition.sort == 'reservationCode'}" th:text="${condition.direction == 'asc' ? '▲' : '▼'}">▲</span>
+            </a>
+          </th>
+          <th class="sortable-th">
+            <a class="sort-link" th:href="@{/admin/reservations(year=${condition.year},month=${condition.month},day=${condition.day},status=${condition.status},keyword=${condition.keyword},sort='reservationDate',direction=${condition.sort == 'reservationDate' and condition.direction == 'asc' ? 'desc' : 'asc'})}">
+              日付
+              <span class="sort-indicator" th:if="${condition.sort == 'reservationDate'}" th:text="${condition.direction == 'asc' ? '▲' : '▼'}">▲</span>
+            </a>
+          </th>
+          <th class="sortable-th">
+            <a class="sort-link" th:href="@{/admin/reservations(year=${condition.year},month=${condition.month},day=${condition.day},status=${condition.status},keyword=${condition.keyword},sort='reservationTime',direction=${condition.sort == 'reservationTime' and condition.direction == 'asc' ? 'desc' : 'asc'})}">
+              時間
+              <span class="sort-indicator" th:if="${condition.sort == 'reservationTime'}" th:text="${condition.direction == 'asc' ? '▲' : '▼'}">▲</span>
+            </a>
+          </th>
+          <th>人数</th>
+          <th>氏名</th>
+          <th>ふりがな</th>
+          <th>金額</th>
+          <th>管理メモ</th>
+          <th class="sortable-th">
+            <a class="sort-link" th:href="@{/admin/reservations(year=${condition.year},month=${condition.month},day=${condition.day},status=${condition.status},keyword=${condition.keyword},sort='status',direction=${condition.sort == 'status' and condition.direction == 'asc' ? 'desc' : 'asc'})}">
+              ステータス
+              <span class="sort-indicator" th:if="${condition.sort == 'status'}" th:text="${condition.direction == 'asc' ? '▲' : '▼'}">▲</span>
+            </a>
+          </th>
+          <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="reservation : ${reservations}">
+          <td th:text="${reservation.reservationCode}">code</td>
+          <td th:text="${reservation.reservationDate}">date</td>
+          <td th:text="${#temporals.format(reservation.reservationTime, 'HH:mm')}">time</td>
+          <td th:text="${reservation.reservationCount}">0</td>
+          <td th:text="${reservation.customerName()}">name</td>
+          <td th:text="${reservation.customerFuriganaHiragana()}">kana</td>
+          <td th:text="${reservation.formattedTotalAmount()} + '円'">0円</td>
+          <td th:text="${reservation.adminMemo != null ? reservation.adminMemo : '-'}">memo</td>
+          <td><span class="badge" th:attr="data-status=${reservation.status.name()}" th:text="${reservation.status.label}">status</span></td>
+          <td><a th:href="@{/admin/reservations/{id}(id=${reservation.id})}">詳細</a></td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(reservations)}">
+          <td colspan="10" class="muted">予約がありません。</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</main>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const yearSelect = document.querySelector('[data-search-year]');
+    const monthSelect = document.querySelector('[data-search-month]');
+    const daySelect = document.querySelector('[data-search-day]');
+
+    if (!yearSelect || !monthSelect || !daySelect) {
+      return;
+    }
+
+    const updateDateFields = () => {
+      const yearValue = yearSelect.value.trim();
+      const monthValue = monthSelect.value.trim();
+      const hasYear = yearValue !== '';
+      const hasMonth = hasYear && monthValue !== '';
+
+      monthSelect.disabled = !hasYear;
+      if (!hasYear) {
+        monthSelect.value = '';
+      }
+
+      daySelect.disabled = !hasMonth;
+      if (!hasMonth) {
+        daySelect.value = '';
+      }
+
+      const maxDays = hasMonth ? new Date(Number(yearValue), Number(monthValue), 0).getDate() : 31;
+      Array.from(daySelect.options).forEach((option) => {
+        if (!option.value) {
+          return;
+        }
+        option.disabled = Number(option.value) > maxDays;
+      });
+
+      if (daySelect.value && Number(daySelect.value) > maxDays) {
+        daySelect.value = '';
+      }
+    };
+
+    yearSelect.addEventListener('change', updateDateFields);
+    monthSelect.addEventListener('change', updateDateFields);
+    updateDateFields();
+  });
+</script>
+</body>
+</html>

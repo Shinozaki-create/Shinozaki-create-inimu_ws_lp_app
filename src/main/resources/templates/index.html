@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>inimu workshop</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&family=Noto+Serif+JP:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="site-header__brand" href="#" aria-label="inimu トップページ">
+        <img class="site-header__logo" src="assets/img/img-header-logo.png" alt="inimu">
+      </a>
+
+      <button class="site-header__menu" type="button" aria-label="メニューを開く">
+        <span class="site-header__menu-line"></span>
+        <span class="site-header__menu-line"></span>
+        <span class="site-header__menu-line"></span>
+      </button>
+
+      <nav class="site-header__nav" aria-label="グローバルナビゲーション">
+        <ul class="site-header__nav-list">
+          <li class="site-header__nav-item"><a class="site-header__nav-link" href="#flow">ワークショップの流れ</a></li>
+          <li class="site-header__nav-item"><a class="site-header__nav-link" href="#price">料金</a></li>
+          <li class="site-header__nav-item"><a class="site-header__nav-link" href="#schedule">スケジュール</a></li>
+          <li class="site-header__nav-item"><a class="site-header__nav-link" href="#shop">店舗情報</a></li>
+          <li class="site-header__nav-item"><a class="site-header__nav-link" href="#faq">よくあるご質問</a></li>
+          <li class="site-header__nav-item"><a class="site-header__nav-link" href="#voice">体験談</a></li>
+        </ul>
+      </nav>
+
+      <a class="site-header__contact" href="#reservation">ご予約・お問い合わせ</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero" aria-label="感性をまとう香り時間">
+      <div class="hero__inner">
+        <div class="hero__content">
+          <h1 class="hero__title hero__fade hero__fade--title">感性<span class="hero__title-small">を</span>まとう<br>香り時間。</h1>
+          <p class="hero__lead hero__fade hero__fade--lead">
+            香りを選び、重ね、<br>
+            自分だけの一本を仕立てる。<br>
+            浅草で出会う、記憶に残る香り体験。
+          </p>
+          <a class="hero__button hero__fade hero__fade--button" href="#reservation">
+            <span class="hero__button-text">ワークショップを予約する</span>
+            <span class="hero__button-arrow" aria-hidden="true"></span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section class="basic-info basic-info--fade" aria-label="ワークショップ基本情報">
+      <div class="basic-info__features">
+        <div class="basic-info__features-inner">
+          <article class="basic-info__feature basic-info__fade">
+            <div class="basic-info__icon basic-info__icon--clock" aria-hidden="true"></div>
+            <h2 class="basic-info__feature-title basic-info__feature-title--time"><span class="basic-info__feature-title-small">所要時間</span><span>約60分</span></h2>
+            <p class="basic-info__feature-text">気軽に楽しめる<br>ちょうどいい時間</p>
+          </article>
+
+          <article class="basic-info__feature basic-info__fade">
+            <div class="basic-info__icon basic-info__icon--beginner" aria-hidden="true"></div>
+            <h2 class="basic-info__feature-title">初心者歓迎</h2>
+            <p class="basic-info__feature-text">スタッフが丁寧に<br>サポート</p>
+          </article>
+
+          <article class="basic-info__feature basic-info__fade">
+            <div class="basic-info__icon basic-info__icon--bag" aria-hidden="true"></div>
+            <h2 class="basic-info__feature-title">手ぶらOK</h2>
+            <p class="basic-info__feature-text">必要なものは<br>こちらでご用意</p>
+          </article>
+
+          <article class="basic-info__feature basic-info__fade">
+            <div class="basic-info__icon basic-info__icon--gift" aria-hidden="true"></div>
+            <h2 class="basic-info__feature-title">持ち帰りOK</h2>
+            <p class="basic-info__feature-text">仕立てた香水＆<br>選んだ香料瓶も</p>
+          </article>
+
+          <article class="basic-info__feature basic-info__fade">
+            <div class="basic-info__icon basic-info__icon--solo" aria-hidden="true"></div>
+            <h2 class="basic-info__feature-title">お一人様歓迎</h2>
+            <p class="basic-info__feature-text">男女問わず<br>お待ちしております</p>
+          </article>
+
+          <article class="basic-info__feature basic-info__fade">
+            <div class="basic-info__icon basic-info__icon--map" aria-hidden="true"></div>
+            <h2 class="basic-info__feature-title">浅草駅近</h2>
+            <p class="basic-info__feature-text">各線浅草駅から徒歩<br>2〜6分、浅草寺近く</p>
+          </article>
+        </div>
+      </div>
+
+      <div class="basic-info__message">
+        <p class="basic-info__message-text basic-info__fade">
+          ただ作るだけではない、今の気分や自分らしさに向き合う時間へ。<br>
+          仕立てた一本とともに、余韻を持ち帰れます。
+        </p>
+      </div>
+
+      <div class="basic-info__gallery" aria-label="店内とワークショップの写真">
+        <img class="basic-info__gallery-image basic-info__fade" src="assets/img/img-galary_a.png" alt="inimu 店内カウンター">
+        <img class="basic-info__gallery-image basic-info__fade" src="assets/img/img-galary_b.png" alt="香料瓶が並ぶ棚">
+        <img class="basic-info__gallery-image basic-info__fade" src="assets/img/img-galary_c.png" alt="ワークショップスペース">
+        <img class="basic-info__gallery-image basic-info__fade" src="assets/img/img-galary_d.png" alt="蒸留器のクローズアップ">
+      </div>
+    </section>
+
+    <section class="workshop-flow workshop-flow--fade" id="flow" aria-labelledby="workshop-flow-title">
+      <div class="workshop-flow__inner">
+        <div class="workshop-flow__heading">          <h2 class="workshop-flow__title" id="workshop-flow-title">ワークショップの流れ</h2>
+
+          <p class="workshop-flow__en">workshop flow</p>
+        </div>
+
+        <div class="workshop-flow__steps">
+          <article class="workshop-flow__card workshop-flow__fade">
+            <div class="workshop-flow__body">
+              <h3 class="workshop-flow__step-title"><span class="workshop-flow__step-number">01.</span> 香りを知る</h3>
+              <p class="workshop-flow__text">香りの特徴や背景をご紹介します<br>12種類（日本土日のみ20種類）</p>
+            </div>
+            <img class="workshop-flow__image" src="assets/img/img-wsflow_01.png" alt="香りを知るワークショップ資料と香料瓶">
+          </article>
+
+          <article class="workshop-flow__card workshop-flow__fade">
+            <div class="workshop-flow__body">
+              <h3 class="workshop-flow__step-title"><span class="workshop-flow__step-number">02.</span> 香りを試す</h3>
+              <p class="workshop-flow__text">気になる香りを試して<br>イメージを膨らませます</p>
+            </div>
+            <img class="workshop-flow__image" src="assets/img/img-wsflow_02.png" alt="香料瓶を手に香りを試す様子">
+          </article>
+
+          <article class="workshop-flow__card workshop-flow__fade">
+            <div class="workshop-flow__body">
+              <h3 class="workshop-flow__step-title"><span class="workshop-flow__step-number">03.</span> 香りを重ねる</h3>
+              <p class="workshop-flow__text">直感でも、相談しながらでもOK、<br>4種類選んでブレンドします</p>
+            </div>
+            <img class="workshop-flow__image" src="assets/img/img-wsflow_03.png" alt="香料瓶とムエットを並べて香りを重ねる">
+          </article>
+
+          <article class="workshop-flow__card workshop-flow__fade">
+            <div class="workshop-flow__body">
+              <h3 class="workshop-flow__step-title"><span class="workshop-flow__step-number">04.</span> 香りを仕立てる</h3>
+              <p class="workshop-flow__text">自分だけの1本を仕立て、ボトルに<br>入れてお持ち帰りいただけます</p>
+            </div>
+            <img class="workshop-flow__image" src="assets/img/img-wsflow_04.png" alt="完成した香水ボトルを持つ手元">
+          </article>
+        </div>
+
+        <p class="workshop-flow__note">香りに詳しくなくても大丈夫、スタッフが丁寧にサポートいたします。</p>
+
+        <div class="workshop-flow__buttons">
+          <a class="workshop-flow__button workshop-flow__button--outline" href="#schedule">
+            <span class="workshop-flow__button-text">スケジュール・空席状況をみる</span>
+            <span class="workshop-flow__button-arrow" aria-hidden="true"></span>
+          </a>
+          <a class="workshop-flow__button workshop-flow__button--fill" href="#reservation">
+            <span class="workshop-flow__button-text">ワークショップを予約する</span>
+            <span class="workshop-flow__button-arrow" aria-hidden="true"></span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section class="price price--fade" id="price" aria-labelledby="price-title">
+      <div class="price__heading">        <h2 class="price__title" id="price-title">料　金</h2>
+
+        <p class="price__en">price</p>
+      </div>
+
+      <div class="price__content">
+        <figure class="price__image-wrap section-fade__item">
+          <img class="price__image" src="assets/img/img-price.png" alt="香水ボトルと香料瓶">
+        </figure>
+
+        <div class="price__body section-fade__item">
+          <p class="price__main"><span class="price__amount"><span class="price__currency">￥</span>5,500</span><span class="price__tax">（税込）／ 1名様</span></p>
+          <ul class="price__list">
+            <li class="price__item">所要時間：約60分</li>
+            <li class="price__item">12種類の香りから4種類をブレンド（月末土日のみ20種類から）</li>
+            <li class="price__item">最大10名まで予約可能、お一人様歓迎</li>
+            <li class="price__item">内容：調香体験、オリジナル香水1個（10ml）＆<span class="price__item-indent">お選びいただいた4種の香料ビン（各10ml）お持ち帰り</span></li>
+          </ul>
+          <p class="price__payment"><span class="price__payment-label">【お支払い方法】</span><span class="price__payment-text">現金／クレジットカード／デビットカード／交通系ICカード／PayPay／楽天ペイ／au PAY／d払い／NFC モバイル決済／Vマネー</span></p>
+          <div class="price__buttons">
+            <a class="price__button price__button--outline" href="#faq"><span class="price__button-text">よくあるご質問</span><span class="price__button-arrow" aria-hidden="true"></span></a>
+            <a class="price__button price__button--fill" href="#reservation"><span class="price__button-text">ワークショップを予約する</span><span class="price__button-arrow" aria-hidden="true"></span></a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="schedule schedule--fade" id="schedule" aria-labelledby="schedule-title">
+      <div class="schedule__inner">
+        <div class="schedule__heading">
+          <h2 class="schedule__title" id="schedule-title">スケジュール・空き状況</h2>
+          <p class="schedule__en">schedule</p>
+        </div>
+
+        <div class="schedule__content">
+          <section class="schedule__calendar-block section-fade__item" aria-label="月次カレンダー">
+            <div class="schedule__calendar" data-schedule-calendar>
+              <div class="schedule__calendar-header">
+                <button class="schedule__calendar-button" type="button" aria-label="前の月へ" data-schedule-prev>&lt;</button>
+                <p class="schedule__calendar-month" data-schedule-month>2026年6月</p>
+                <button class="schedule__calendar-button" type="button" aria-label="次の月へ" data-schedule-next>&gt;</button>
+              </div>
+              <table class="schedule__calendar-table">
+                <caption class="schedule__calendar-caption" data-schedule-caption>2026年6月の開催日カレンダー</caption>
+                <thead class="schedule__calendar-head">
+                  <tr class="schedule__calendar-row">
+                    <th class="schedule__calendar-day" scope="col">月</th>
+                    <th class="schedule__calendar-day" scope="col">火</th>
+                    <th class="schedule__calendar-day" scope="col">水</th>
+                    <th class="schedule__calendar-day" scope="col">木</th>
+                    <th class="schedule__calendar-day" scope="col">金</th>
+                    <th class="schedule__calendar-day schedule__calendar-day--sat" scope="col">土</th>
+                    <th class="schedule__calendar-day schedule__calendar-day--sun" scope="col">日</th>
+                  </tr>
+                </thead>
+                <tbody class="schedule__calendar-body" data-schedule-calendar-body></tbody>
+              </table>
+              <p class="schedule__calendar-note"><span class="schedule__calendar-note-mark">●</span>開催日。クリックすると空き状況が表示されます。</p>
+            </div>
+          </section>
+
+          <section class="schedule__time-block" aria-labelledby="schedule-time-title">
+            <p class="schedule__status-label" id="schedule-time-title">ご選択日</p>
+            <p class="schedule__selected-date" data-schedule-selected-date>2026年6月6日（土）</p>
+            <ul class="schedule__slot-list" data-schedule-slot-list></ul>
+            <ul class="schedule__notice-list">
+              <li class="schedule__notice-item">クリックすると予約フォームに移ります。</li>
+              <li class="schedule__notice-item">集合時間：開始時刻の10分前です。</li>
+              <li class="schedule__notice-item">ワークショップ不参加での同伴はお席の都合上お断りしております。</li>
+              <li class="schedule__notice-item">当日のご予約はお電話にてお問合せください。</li>
+            </ul>
+          </section>
+        </div>
+      </div>
+    </section>
+
+    <section class="shop-info shop-info--fade" id="shop" aria-labelledby="shop-info-title">
+      <div class="shop-info__heading">        <h2 class="shop-info__title" id="shop-info-title">店舗情報</h2>
+
+        <p class="shop-info__en">shop info</p>
+      </div>
+
+      <div class="shop-info__content">
+        <figure class="shop-info__image-wrap section-fade__item">
+          <img class="shop-info__image" src="assets/img/img-shopentrance.png" alt="inimu浅草店の外観">
+        </figure>
+
+        <address class="shop-info__body section-fade__item">
+          <div class="shop-info__brand-row">
+            <span class="shop-info__brand-text">inimu</span>
+            <img class="shop-info__logo" src="assets/img/imimu_logo.png" alt="inimu">
+          </div>
+          <p class="shop-info__text">
+            東京都台東区浅草2丁目1－5<br>
+            TEL：070-7401-3069<br>
+            営業時間：10:30-18:00　※月曜定休日<br>
+            月曜祝日の場合翌火曜日休日
+          </p>
+          <p class="shop-info__access-title">【アクセス】</p>
+          <p class="shop-info__text">
+            東京メトロ銀座線【浅草駅】6番口より徒歩2分<br>
+            都営地下鉄浅草線【浅草駅】A5番出口より徒歩5分<br>
+            東武スカイツリーライン【浅草駅】北改札より徒歩2分<br>
+            つくばエクスプレス【浅草駅】A1出口より徒歩6分
+          </p>
+        </address>
+
+        <div class="shop-info__map section-fade__item" aria-label="inimu浅草店の地図">
+          <iframe class="shop-info__map-frame" src="https://www.google.com/maps?q=%E6%9D%B1%E4%BA%AC%E9%83%BD%E5%8F%B0%E6%9D%B1%E5%8C%BA%E6%B5%85%E8%8D%892-1-5&output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="inimu浅草店の地図"></iframe>
+        </div>
+      </div>
+    </section>
+
+    <section class="reviews reviews--fade" id="reviews" aria-labelledby="reviews-title">
+      <div class="reviews__heading">        <h2 class="reviews__title" id="reviews-title">体験された方のお声</h2>
+
+        <p class="reviews__en">reviews</p>
+      </div>
+
+      <div class="reviews__inner">
+        <div class="reviews__list" aria-label="体験された方のお声一覧">
+          <article class="reviews__card" data-review-page="1">
+            <img class="reviews__quote reviews__quote--start" src="assets/icons/reviews_mark.png" alt="" aria-hidden="true">
+            <div class="reviews__card-content">
+<header class="reviews__card-header">
+              <img class="reviews__avatar" src="assets/icons/review-icon_woman.png" alt="" aria-hidden="true">
+              <p class="reviews__profile">20代／女性</p>
+            </header>
+            <p class="reviews__text">香りの知識がなくても、スタッフの方が丁寧に案内してくれました。自分の好みを探す時間が楽しく、浅草での思い出になる一本が作れました。</p>
+            </div>
+            <img class="reviews__quote reviews__quote--end" src="assets/icons/reviews_mark.png" alt="" aria-hidden="true">
+          
+                      </article>
+
+          <article class="reviews__card" data-review-page="1">
+            <img class="reviews__quote reviews__quote--start" src="assets/icons/reviews_mark.png" alt="" aria-hidden="true">
+            <div class="reviews__card-content">
+<header class="reviews__card-header">
+              <img class="reviews__avatar" src="assets/icons/review-icon_man.png" alt="" aria-hidden="true">
+              <p class="reviews__profile">30代／男性</p>
+            </header>
+            <p class="reviews__text">落ち着いた空間で、男性でも参加しやすい雰囲気でした。香りを比べながら選べるので分かりやすく、完成した香水も日常使いしやすい香りになりました。</p>
+            </div>
+            <img class="reviews__quote reviews__quote--end" src="assets/icons/reviews_mark.png" alt="" aria-hidden="true">
+          
+                      </article>
+
+          <article class="reviews__card" data-review-page="1">
+            <img class="reviews__quote reviews__quote--start" src="assets/icons/reviews_mark.png" alt="" aria-hidden="true">
+            <div class="reviews__card-content">
+<header class="reviews__card-header">
+              <img class="reviews__avatar" src="assets/icons/review-icon_woman.png" alt="" aria-hidden="true">
+              <p class="reviews__profile">20代／女性</p>
+            </header>
+            <p class="reviews__text">友人との旅行で参加しました。香料を選ぶ工程が想像以上に楽しく、完成品を持ち帰れるのも嬉しかったです。写真を撮りたくなる雰囲気でした。</p>
+            </div>
+            <img class="reviews__quote reviews__quote--end" src="assets/icons/reviews_mark.png" alt="" aria-hidden="true">
+          
+                      </article>
+
+          <article class="reviews__card" data-review-page="2" hidden>
+            <img class="reviews__quote reviews__quote--start" src="assets/icons/reviews_mark.png" alt="" aria-hidden="true">
+            <div class="reviews__card-content">
+            <header class="reviews__card-header">
+              <img class="reviews__avatar" src="assets/icons/review-icon_woman.png" alt="" aria-hidden="true">
+              <p class="reviews__profile">40代／女性</p>
+            </header>
+            <p class="reviews__text">浅草観光の合間に参加しました。短い時間でもしっかり体験でき、香りの背景についても知ることができて満足度が高かったです。</p>
+            </div>
+            <img class="reviews__quote reviews__quote--end" src="assets/icons/reviews_mark.png" alt="" aria-hidden="true">
+          
+          </article>
+
+          <article class="reviews__card" data-review-page="2" hidden>
+            <img class="reviews__quote reviews__quote--start" src="assets/icons/reviews_mark.png" alt="" aria-hidden="true">
+            <div class="reviews__card-content">
+            <header class="reviews__card-header">
+              <img class="reviews__avatar" src="assets/icons/review-icon_woman.png" alt="" aria-hidden="true">
+              <p class="reviews__profile">30代／女性</p>
+            </header>
+            <p class="reviews__text">自分では選ばない香りも試せて、新しい発見がありました。説明が分かりやすく、初心者でも安心して楽しめるワークショップでした。</p>
+            </div>
+            <img class="reviews__quote reviews__quote--end" src="assets/icons/reviews_mark.png" alt="" aria-hidden="true">
+          
+          </article>
+
+          <article class="reviews__card" data-review-page="2" hidden>
+            <img class="reviews__quote reviews__quote--start" src="assets/icons/reviews_mark.png" alt="" aria-hidden="true">
+            <div class="reviews__card-content">
+            <header class="reviews__card-header">
+              <img class="reviews__avatar" src="assets/icons/review-icon_man.png" alt="" aria-hidden="true">
+              <p class="reviews__profile">20代／男性</p>
+            </header>
+            <p class="reviews__text">デートで利用しました。お互いの好みを話しながら香りを作れるので、会話も自然に広がりました。完成した香りも良い記念になりました。</p>
+            </div>
+            <img class="reviews__quote reviews__quote--end" src="assets/icons/reviews_mark.png" alt="" aria-hidden="true">
+          
+          </article>
+
+          <article class="reviews__card" data-review-page="3" hidden>
+            <img class="reviews__quote reviews__quote--start" src="assets/icons/reviews_mark.png" alt="" aria-hidden="true">
+            <div class="reviews__card-content">
+            <header class="reviews__card-header">
+              <img class="reviews__avatar" src="assets/icons/review-icon_woman.png" alt="" aria-hidden="true">
+              <p class="reviews__profile">50代／女性</p>
+            </header>
+            <p class="reviews__text">香りの組み合わせ方をゆっくり試せるのが良かったです。店内も落ち着いていて、ものづくりの背景に触れられる点も印象に残りました。</p>
+            </div>
+            <img class="reviews__quote reviews__quote--end" src="assets/icons/reviews_mark.png" alt="" aria-hidden="true">
+          
+          </article>
+
+          <article class="reviews__card" data-review-page="3" hidden>
+            <img class="reviews__quote reviews__quote--start" src="assets/icons/reviews_mark.png" alt="" aria-hidden="true">
+            <div class="reviews__card-content">
+            <header class="reviews__card-header">
+              <img class="reviews__avatar" src="assets/icons/review-icon_man.png" alt="" aria-hidden="true">
+              <p class="reviews__profile">30代／男性</p>
+            </header>
+            <p class="reviews__text">普段あまり香水を使わないのですが、自分に合う香りを見つけられました。気軽さと本格感のバランスがちょうど良かったです。</p>
+            </div>
+            <img class="reviews__quote reviews__quote--end" src="assets/icons/reviews_mark.png" alt="" aria-hidden="true">
+          
+          </article>
+
+          <article class="reviews__card" data-review-page="3" hidden>
+            <img class="reviews__quote reviews__quote--start" src="assets/icons/reviews_mark.png" alt="" aria-hidden="true">
+            <div class="reviews__card-content">
+            <header class="reviews__card-header">
+              <img class="reviews__avatar" src="assets/icons/review-icon_woman.png" alt="" aria-hidden="true">
+              <p class="reviews__profile">20代／女性</p>
+            </header>
+            <p class="reviews__text">香りを重ねるたびに印象が変わるのが面白かったです。スタッフさんのアドバイスのおかげで、納得できる一本に仕上がりました。</p>
+            </div>
+            <img class="reviews__quote reviews__quote--end" src="assets/icons/reviews_mark.png" alt="" aria-hidden="true">
+          
+          </article>
+
+          <article class="reviews__card" data-review-page="4" hidden>
+            <img class="reviews__quote reviews__quote--start" src="assets/icons/reviews_mark.png" alt="" aria-hidden="true">
+            <div class="reviews__card-content">
+            <header class="reviews__card-header">
+              <img class="reviews__avatar" src="assets/icons/review-icon_man.png" alt="" aria-hidden="true">
+              <p class="reviews__profile">40代／男性</p>
+            </header>
+            <p class="reviews__text">浅草らしい体験を探していて見つけました。観光だけでなく、形に残るお土産として香りを持ち帰れるところが良かったです。</p>
+            </div>
+            <img class="reviews__quote reviews__quote--end" src="assets/icons/reviews_mark.png" alt="" aria-hidden="true">
+          
+          </article>
+
+          <article class="reviews__card" data-review-page="4" hidden>
+            <img class="reviews__quote reviews__quote--start" src="assets/icons/reviews_mark.png" alt="" aria-hidden="true">
+            <div class="reviews__card-content">
+            <header class="reviews__card-header">
+              <img class="reviews__avatar" src="assets/icons/review-icon_woman.png" alt="" aria-hidden="true">
+              <p class="reviews__profile">30代／女性</p>
+            </header>
+            <p class="reviews__text">店内の世界観が素敵で、香りを選ぶ時間そのものが特別に感じられました。友人にもおすすめしたい体験です。</p>
+            </div>
+            <img class="reviews__quote reviews__quote--end" src="assets/icons/reviews_mark.png" alt="" aria-hidden="true">
+          
+          </article>
+
+          <article class="reviews__card" data-review-page="4" hidden>
+            <img class="reviews__quote reviews__quote--start" src="assets/icons/reviews_mark.png" alt="" aria-hidden="true">
+            <div class="reviews__card-content">
+            <header class="reviews__card-header">
+              <img class="reviews__avatar" src="assets/icons/review-icon_woman.png" alt="" aria-hidden="true">
+              <p class="reviews__profile">20代／女性</p>
+            </header>
+            <p class="reviews__text">香りの種類が多くて迷いましたが、丁寧にサポートしてもらえました。完成した香水を使うたびに、その日のことを思い出せそうです。</p>
+            </div>
+            <img class="reviews__quote reviews__quote--end" src="assets/icons/reviews_mark.png" alt="" aria-hidden="true">
+          
+          </article>
+
+          <article class="reviews__card" data-review-page="5" hidden>
+            <img class="reviews__quote reviews__quote--start" src="assets/icons/reviews_mark.png" alt="" aria-hidden="true">
+            <div class="reviews__card-content">
+            <header class="reviews__card-header">
+              <img class="reviews__avatar" src="assets/icons/review-icon_woman.png" alt="" aria-hidden="true">
+              <p class="reviews__profile">30代／女性</p>
+            </header>
+            <p class="reviews__text">一人で参加しましたが、落ち着いて楽しめました。自分の感性に向き合うような時間で、リフレッシュにもなりました。</p>
+            </div>
+            <img class="reviews__quote reviews__quote--end" src="assets/icons/reviews_mark.png" alt="" aria-hidden="true">
+          
+          </article>
+
+          <article class="reviews__card" data-review-page="5" hidden>
+            <img class="reviews__quote reviews__quote--start" src="assets/icons/reviews_mark.png" alt="" aria-hidden="true">
+            <div class="reviews__card-content">
+            <header class="reviews__card-header">
+              <img class="reviews__avatar" src="assets/icons/review-icon_woman.png" alt="" aria-hidden="true">
+              <p class="reviews__profile">40代／女性</p>
+            </header>
+            <p class="reviews__text">香りづくりだけでなく、日本のものづくりの話も聞けたのが良かったです。体験としての満足感がありました。</p>
+            </div>
+            <img class="reviews__quote reviews__quote--end" src="assets/icons/reviews_mark.png" alt="" aria-hidden="true">
+          
+          </article>
+
+          <article class="reviews__card" data-review-page="5" hidden>
+            <img class="reviews__quote reviews__quote--start" src="assets/icons/reviews_mark.png" alt="" aria-hidden="true">
+            <div class="reviews__card-content">
+            <header class="reviews__card-header">
+              <img class="reviews__avatar" src="assets/icons/review-icon_man.png" alt="" aria-hidden="true">
+              <p class="reviews__profile">20代／男性</p>
+            </header>
+            <p class="reviews__text">初めての香水作りでしたが、難しすぎず楽しく参加できました。完成した香りはプレゼントにも良さそうだと思いました。</p>
+            </div>
+            <img class="reviews__quote reviews__quote--end" src="assets/icons/reviews_mark.png" alt="" aria-hidden="true">
+          
+          </article>
+
+          <article class="reviews__card" data-review-page="6" hidden>
+            <img class="reviews__quote reviews__quote--start" src="assets/icons/reviews_mark.png" alt="" aria-hidden="true">
+            <div class="reviews__card-content">
+            <header class="reviews__card-header">
+              <img class="reviews__avatar" src="assets/icons/review-icon_man.png" alt="" aria-hidden="true">
+              <p class="reviews__profile">30代／男性</p>
+            </header>
+            <p class="reviews__text">浅草観光の予定に合わせて予約しました。短時間で本格的な香りづくりを体験でき、完成品を持ち帰れるところがとても良かったです。</p>
+            </div>
+            <img class="reviews__quote reviews__quote--end" src="assets/icons/reviews_mark.png" alt="" aria-hidden="true">
+          
+          </article>
+
+          <article class="reviews__card" data-review-page="6" hidden>
+            <img class="reviews__quote reviews__quote--start" src="assets/icons/reviews_mark.png" alt="" aria-hidden="true">
+            <div class="reviews__card-content">
+            <header class="reviews__card-header">
+              <img class="reviews__avatar" src="assets/icons/review-icon_woman.png" alt="" aria-hidden="true">
+              <p class="reviews__profile">40代／女性</p>
+            </header>
+            <p class="reviews__text">香りを選ぶだけでなく、重ね方によって印象が変わることを知れて楽しかったです。落ち着いた雰囲気で大人も楽しめる体験でした。</p>
+            </div>
+            <img class="reviews__quote reviews__quote--end" src="assets/icons/reviews_mark.png" alt="" aria-hidden="true">
+          
+          </article>
+
+          <article class="reviews__card" data-review-page="6" hidden>
+            <img class="reviews__quote reviews__quote--start" src="assets/icons/reviews_mark.png" alt="" aria-hidden="true">
+            <div class="reviews__card-content">
+            <header class="reviews__card-header">
+              <img class="reviews__avatar" src="assets/icons/review-icon_woman.png" alt="" aria-hidden="true">
+              <p class="reviews__profile">20代／女性</p>
+            </header>
+            <p class="reviews__text">スタッフの方の説明が丁寧で、香りに詳しくなくても安心して参加できました。自分だけの香りができる特別感がありました。</p>
+            </div>
+            <img class="reviews__quote reviews__quote--end" src="assets/icons/reviews_mark.png" alt="" aria-hidden="true">
+          
+          </article>
+        </div>
+
+        <nav class="reviews__pagination" aria-label="お声のページ送り">
+          <button class="reviews__page" type="button" data-review-prev aria-label="前のページへ" hidden>&lt;</button>
+          <button class="reviews__page reviews__page--current" type="button" data-review-page-button="1" aria-current="page">1</button>
+          <button class="reviews__page" type="button" data-review-page-button="2">2</button>
+          <button class="reviews__page" type="button" data-review-page-button="3">3</button>
+          <button class="reviews__page" type="button" data-review-page-button="4">4</button>
+          <button class="reviews__page" type="button" data-review-page-button="5">5</button>
+          <button class="reviews__page" type="button" data-review-page-button="6" hidden>6</button>
+          <button class="reviews__page" type="button" data-review-next aria-label="次のページへ">&gt;</button>
+        </nav>
+
+        <a class="reviews__button" href="#reservation">
+          <span class="reviews__button-text">ワークショップを予約する</span>
+          <span class="reviews__button-arrow" aria-hidden="true"></span>
+        </a>
+      </div>
+    </section>
+
+    <section class="faq faq--fade" id="faq" aria-labelledby="faq-title">
+      <div class="faq__heading">        <h2 class="faq__title" id="faq-title">よくあるご質問</h2>
+
+        <p class="faq__en">faq</p>
+      </div>
+
+      <div class="faq__inner">
+        <details class="faq__item">
+          <summary class="faq__question">
+            <span class="faq__label">Q.</span>
+            <span class="faq__question-text">香りの知識がなくても大丈夫ですか？</span>
+            <span class="faq__icon" aria-hidden="true"></span>
+          </summary>
+          <div class="faq__answer">
+            <span class="faq__label faq__label--answer">A.</span>
+            <p class="faq__answer-text">初めての方でも安心してご参加いただけます。スタッフが香りの選び方や重ね方を丁寧にご案内します。</p>
+          </div>
+        </details>
+
+        <details class="faq__item">
+          <summary class="faq__question">
+            <span class="faq__label">Q.</span>
+            <span class="faq__question-text">所要時間はどのくらいですか？</span>
+            <span class="faq__icon" aria-hidden="true"></span>
+          </summary>
+          <div class="faq__answer">
+            <span class="faq__label faq__label--answer">A.</span>
+            <p class="faq__answer-text">体験時間は約60分です。香りを試しながら選び、オリジナルの香水を仕立てていただきます。</p>
+          </div>
+        </details>
+
+        <details class="faq__item">
+          <summary class="faq__question">
+            <span class="faq__label">Q.</span>
+            <span class="faq__question-text">作った香水は当日持ち帰れますか？</span>
+            <span class="faq__icon" aria-hidden="true"></span>
+          </summary>
+          <div class="faq__answer">
+            <span class="faq__label faq__label--answer">A.</span>
+            <p class="faq__answer-text">はい、完成したオリジナル香水は当日そのままお持ち帰りいただけます。旅の思い出やギフトにもおすすめです。</p>
+          </div>
+        </details>
+
+        <details class="faq__item">
+          <summary class="faq__question">
+            <span class="faq__label">Q.</span>
+            <span class="faq__question-text">何名まで参加できますか？</span>
+            <span class="faq__icon" aria-hidden="true"></span>
+          </summary>
+          <div class="faq__answer">
+            <span class="faq__label faq__label--answer">A.</span>
+            <p class="faq__answer-text">1名様からご参加いただけます。複数名でのご予約も可能ですので、空き状況をご確認のうえお申し込みください。</p>
+          </div>
+        </details>
+
+        <details class="faq__item">
+          <summary class="faq__question">
+            <span class="faq__label">Q.</span>
+            <span class="faq__question-text">当日の持ち物はありますか？</span>
+            <span class="faq__icon" aria-hidden="true"></span>
+          </summary>
+          <div class="faq__answer">
+            <span class="faq__label faq__label--answer">A.</span>
+            <p class="faq__answer-text">特別な持ち物はありません。香りを試しながら作る体験ですので、手ぶらでお気軽にお越しください。</p>
+          </div>
+        </details>
+
+        <details class="faq__item">
+          <summary class="faq__question">
+            <span class="faq__label">Q.</span>
+            <span class="faq__question-text">予約なしでも参加できますか？</span>
+            <span class="faq__icon" aria-hidden="true"></span>
+          </summary>
+          <div class="faq__answer">
+            <span class="faq__label faq__label--answer">A.</span>
+            <p class="faq__answer-text">空きがある場合はご案内できることもありますが、席数に限りがあるため事前予約をおすすめしています。</p>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <section class="reservation-contact reservation-contact--fade" id="reservation" aria-labelledby="reservation-contact-title">
+      <div class="reservation-contact__inner">
+        <div class="reservation-contact__heading">          <h2 class="reservation-contact__title" id="reservation-contact-title">ご予約・お問い合わせフォーム</h2>
+
+          <p class="reservation-contact__en">resevation.contact</p>
+        </div>
+
+        <form class="reservation-contact__form reservation-contact__fade" action="#" method="post">
+          <div class="reservation-contact__inquiry">
+            <label class="reservation-contact__check-label">
+              <input class="reservation-contact__checkbox" type="checkbox" name="inquiry_only" value="1">
+              <span class="reservation-contact__check-text">問い合わせのみの方はチェックを入れてください</span>
+            </label>
+          </div>
+
+          <fieldset class="reservation-contact__fieldset reservation-contact__fieldset--booking">
+            <legend class="reservation-contact__legend">予約内容</legend>
+
+            <div class="reservation-contact__booking-layout">
+              <div class="reservation-contact__booking-calendar">
+              <div class="reservation-contact__field reservation-contact__field--calendar">
+                <label class="reservation-contact__label" for="reservation-date">ご希望日<span class="reservation-contact__required reservation-contact__required--booking">必須</span></label>
+                <input class="reservation-contact__date-value" id="reservation-date" type="hidden" name="reservation_date" value="2026-06-06" required>
+                <div class="reservation-contact__calendar" data-reservation-calendar>
+                  <div class="reservation-contact__calendar-header">
+                    <button class="reservation-contact__calendar-button" type="button" aria-label="前の月へ" data-reservation-prev>&lt;</button>
+                    <p class="reservation-contact__calendar-month" data-reservation-month>2026年6月</p>
+                    <button class="reservation-contact__calendar-button" type="button" aria-label="次の月へ" data-reservation-next>&gt;</button>
+                  </div>
+                  <p class="reservation-contact__calendar-note"><span class="reservation-contact__calendar-note-mark">●</span>開催日です。ご選択ください。</p>
+                  <table class="reservation-contact__calendar-table">
+                    <caption class="reservation-contact__calendar-caption" data-reservation-caption>2026年6月の開催日カレンダー</caption>
+                    <thead class="reservation-contact__calendar-head">
+                      <tr class="reservation-contact__calendar-row">
+                        <th class="reservation-contact__calendar-day" scope="col">月</th>
+                        <th class="reservation-contact__calendar-day" scope="col">火</th>
+                        <th class="reservation-contact__calendar-day" scope="col">水</th>
+                        <th class="reservation-contact__calendar-day" scope="col">木</th>
+                        <th class="reservation-contact__calendar-day" scope="col">金</th>
+                        <th class="reservation-contact__calendar-day reservation-contact__calendar-day--sat" scope="col">土</th>
+                        <th class="reservation-contact__calendar-day reservation-contact__calendar-day--sun" scope="col">日</th>
+                      </tr>
+                    </thead>
+                    <tbody class="reservation-contact__calendar-body" data-reservation-calendar-body>
+                      <tr class="reservation-contact__calendar-row">
+                        <td class="reservation-contact__calendar-cell reservation-contact__calendar-cell--closed"><span class="reservation-contact__calendar-date"><span class="reservation-contact__calendar-number">1</span><span class="reservation-contact__calendar-mark">―</span></span></td>
+                        <td class="reservation-contact__calendar-cell reservation-contact__calendar-cell--closed"><span class="reservation-contact__calendar-date"><span class="reservation-contact__calendar-number">2</span><span class="reservation-contact__calendar-mark">―</span></span></td>
+                        <td class="reservation-contact__calendar-cell reservation-contact__calendar-cell--closed"><span class="reservation-contact__calendar-date"><span class="reservation-contact__calendar-number">3</span><span class="reservation-contact__calendar-mark">―</span></span></td>
+                        <td class="reservation-contact__calendar-cell reservation-contact__calendar-cell--closed"><span class="reservation-contact__calendar-date"><span class="reservation-contact__calendar-number">4</span><span class="reservation-contact__calendar-mark">―</span></span></td>
+                        <td class="reservation-contact__calendar-cell reservation-contact__calendar-cell--closed"><span class="reservation-contact__calendar-date"><span class="reservation-contact__calendar-number">5</span><span class="reservation-contact__calendar-mark">―</span></span></td>
+                        <td class="reservation-contact__calendar-cell reservation-contact__calendar-cell--open reservation-contact__calendar-cell--selected"><button class="reservation-contact__calendar-date" type="button" data-date="2026-06-06" aria-pressed="true" aria-label="2026年6月6日 開催日"><span class="reservation-contact__calendar-number">6</span><span class="reservation-contact__calendar-mark">●</span></button></td>
+                        <td class="reservation-contact__calendar-cell reservation-contact__calendar-cell--open"><button class="reservation-contact__calendar-date" type="button" data-date="2026-06-07" aria-pressed="false" aria-label="2026年6月7日 開催日"><span class="reservation-contact__calendar-number">7</span><span class="reservation-contact__calendar-mark">●</span></button></td>
+                      </tr>
+                      <tr class="reservation-contact__calendar-row">
+                        <td class="reservation-contact__calendar-cell reservation-contact__calendar-cell--closed"><span class="reservation-contact__calendar-date"><span class="reservation-contact__calendar-number">8</span><span class="reservation-contact__calendar-mark">―</span></span></td>
+                        <td class="reservation-contact__calendar-cell reservation-contact__calendar-cell--closed"><span class="reservation-contact__calendar-date"><span class="reservation-contact__calendar-number">9</span><span class="reservation-contact__calendar-mark">―</span></span></td>
+                        <td class="reservation-contact__calendar-cell reservation-contact__calendar-cell--closed"><span class="reservation-contact__calendar-date"><span class="reservation-contact__calendar-number">10</span><span class="reservation-contact__calendar-mark">―</span></span></td>
+                        <td class="reservation-contact__calendar-cell reservation-contact__calendar-cell--closed"><span class="reservation-contact__calendar-date"><span class="reservation-contact__calendar-number">11</span><span class="reservation-contact__calendar-mark">―</span></span></td>
+                        <td class="reservation-contact__calendar-cell reservation-contact__calendar-cell--closed"><span class="reservation-contact__calendar-date"><span class="reservation-contact__calendar-number">12</span><span class="reservation-contact__calendar-mark">―</span></span></td>
+                        <td class="reservation-contact__calendar-cell reservation-contact__calendar-cell--open"><button class="reservation-contact__calendar-date" type="button" data-date="2026-06-13" aria-pressed="false"><span class="reservation-contact__calendar-number">13</span><span class="reservation-contact__calendar-mark">●</span></button></td>
+                        <td class="reservation-contact__calendar-cell reservation-contact__calendar-cell--open"><button class="reservation-contact__calendar-date" type="button" data-date="2026-06-14" aria-pressed="false"><span class="reservation-contact__calendar-number">14</span><span class="reservation-contact__calendar-mark">●</span></button></td>
+                      </tr>
+                      <tr class="reservation-contact__calendar-row">
+                        <td class="reservation-contact__calendar-cell reservation-contact__calendar-cell--closed"><span class="reservation-contact__calendar-date"><span class="reservation-contact__calendar-number">15</span><span class="reservation-contact__calendar-mark">―</span></span></td>
+                        <td class="reservation-contact__calendar-cell reservation-contact__calendar-cell--closed"><span class="reservation-contact__calendar-date"><span class="reservation-contact__calendar-number">16</span><span class="reservation-contact__calendar-mark">―</span></span></td>
+                        <td class="reservation-contact__calendar-cell reservation-contact__calendar-cell--closed"><span class="reservation-contact__calendar-date"><span class="reservation-contact__calendar-number">17</span><span class="reservation-contact__calendar-mark">―</span></span></td>
+                        <td class="reservation-contact__calendar-cell reservation-contact__calendar-cell--closed"><span class="reservation-contact__calendar-date"><span class="reservation-contact__calendar-number">18</span><span class="reservation-contact__calendar-mark">―</span></span></td>
+                        <td class="reservation-contact__calendar-cell reservation-contact__calendar-cell--closed"><span class="reservation-contact__calendar-date"><span class="reservation-contact__calendar-number">19</span><span class="reservation-contact__calendar-mark">―</span></span></td>
+                        <td class="reservation-contact__calendar-cell reservation-contact__calendar-cell--open"><button class="reservation-contact__calendar-date" type="button" data-date="2026-06-20" aria-pressed="false"><span class="reservation-contact__calendar-number">20</span><span class="reservation-contact__calendar-mark">●</span></button></td>
+                        <td class="reservation-contact__calendar-cell reservation-contact__calendar-cell--open"><button class="reservation-contact__calendar-date" type="button" data-date="2026-06-21" aria-pressed="false"><span class="reservation-contact__calendar-number">21</span><span class="reservation-contact__calendar-mark">●</span></button></td>
+                      </tr>
+                      <tr class="reservation-contact__calendar-row">
+                        <td class="reservation-contact__calendar-cell reservation-contact__calendar-cell--closed"><span class="reservation-contact__calendar-date"><span class="reservation-contact__calendar-number">22</span><span class="reservation-contact__calendar-mark">―</span></span></td>
+                        <td class="reservation-contact__calendar-cell reservation-contact__calendar-cell--closed"><span class="reservation-contact__calendar-date"><span class="reservation-contact__calendar-number">23</span><span class="reservation-contact__calendar-mark">―</span></span></td>
+                        <td class="reservation-contact__calendar-cell reservation-contact__calendar-cell--closed"><span class="reservation-contact__calendar-date"><span class="reservation-contact__calendar-number">24</span><span class="reservation-contact__calendar-mark">―</span></span></td>
+                        <td class="reservation-contact__calendar-cell reservation-contact__calendar-cell--closed"><span class="reservation-contact__calendar-date"><span class="reservation-contact__calendar-number">25</span><span class="reservation-contact__calendar-mark">―</span></span></td>
+                        <td class="reservation-contact__calendar-cell reservation-contact__calendar-cell--closed"><span class="reservation-contact__calendar-date"><span class="reservation-contact__calendar-number">26</span><span class="reservation-contact__calendar-mark">―</span></span></td>
+                        <td class="reservation-contact__calendar-cell reservation-contact__calendar-cell--open"><button class="reservation-contact__calendar-date" type="button" data-date="2026-06-27" aria-pressed="false"><span class="reservation-contact__calendar-number">27</span><span class="reservation-contact__calendar-mark">●</span></button></td>
+                        <td class="reservation-contact__calendar-cell reservation-contact__calendar-cell--open"><button class="reservation-contact__calendar-date" type="button" data-date="2026-06-28" aria-pressed="false"><span class="reservation-contact__calendar-number">28</span><span class="reservation-contact__calendar-mark">●</span></button></td>
+                      </tr>
+                      <tr class="reservation-contact__calendar-row">
+                        <td class="reservation-contact__calendar-cell reservation-contact__calendar-cell--closed"><span class="reservation-contact__calendar-date"><span class="reservation-contact__calendar-number">29</span><span class="reservation-contact__calendar-mark">―</span></span></td>
+                        <td class="reservation-contact__calendar-cell reservation-contact__calendar-cell--closed"><span class="reservation-contact__calendar-date"><span class="reservation-contact__calendar-number">30</span><span class="reservation-contact__calendar-mark">―</span></span></td>
+                        <td class="reservation-contact__calendar-cell reservation-contact__calendar-cell--empty" colspan="5"></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              </div>
+
+              <div class="reservation-contact__booking-controls">
+              <div class="reservation-contact__field reservation-contact__field--selected-date">
+                <p class="reservation-contact__label">ご選択日</p>
+                <p class="reservation-contact__selected-date" data-selected-date>2026年6月6日（土）</p>
+              </div>
+
+              <div class="reservation-contact__field">
+                <label class="reservation-contact__label" for="reservation-time">ご希望時間<span class="reservation-contact__required reservation-contact__required--booking">必須</span></label>
+                <select class="reservation-contact__control reservation-contact__booking-control" id="reservation-time" name="reservation_time" required>
+                  <option value="">選択してください</option>
+                  <option value="11:00">11:00～</option>
+                  <option value="13:00">13:00～</option>
+                  <option value="15:00">15:00～</option>
+                </select>
+              </div>
+
+              <div class="reservation-contact__field">
+                <label class="reservation-contact__label" for="reservation-count">人数<span class="reservation-contact__required reservation-contact__required--booking">必須</span></label>
+                <select class="reservation-contact__control reservation-contact__booking-control" id="reservation-count" name="reservation_count" required>
+                  <option value="">選択してください</option>
+                  <option value="1">1名</option>
+                  <option value="2">2名</option>
+                  <option value="3">3名</option>
+                  <option value="4">4名</option>
+                  <option value="5">5名</option>
+                  <option value="6">6名</option>
+                  <option value="7">7名</option>
+                  <option value="8">8名</option>
+                  <option value="9">9名</option>
+                  <option value="10">10名</option>
+                </select>
+                <p class="reservation-contact__field-note">空き人数に合わせて選択できます。</p>
+              </div>
+              </div>
+            </div>
+          </fieldset>
+
+          <fieldset class="reservation-contact__fieldset">
+            <legend class="reservation-contact__legend">お客様情報</legend>
+
+            <div class="reservation-contact__grid reservation-contact__grid--two">
+              <div class="reservation-contact__field">
+                <span class="reservation-contact__label">お名前<span class="reservation-contact__required">必須</span></span>
+                <div class="reservation-contact__name-fields">
+                  <label class="reservation-contact__name-field" for="customer-family-name">
+                    <span class="reservation-contact__visually-hidden">姓</span>
+                    <input class="reservation-contact__control" id="customer-family-name" type="text" name="customer_family_name" autocomplete="family-name" placeholder="姓" required>
+                  </label>
+                  <label class="reservation-contact__name-field" for="customer-given-name">
+                    <span class="reservation-contact__visually-hidden">名</span>
+                    <input class="reservation-contact__control" id="customer-given-name" type="text" name="customer_given_name" autocomplete="given-name" placeholder="名" required>
+                  </label>
+                </div>
+              </div>
+
+              <div class="reservation-contact__field">
+                <span class="reservation-contact__label">ふりがな<span class="reservation-contact__required">必須</span></span>
+                <div class="reservation-contact__name-fields">
+                  <label class="reservation-contact__name-field" for="customer-family-kana">
+                    <span class="reservation-contact__visually-hidden">せい</span>
+                    <input class="reservation-contact__control" id="customer-family-kana" type="text" name="customer_family_kana" placeholder="せい" required>
+                  </label>
+                  <label class="reservation-contact__name-field" for="customer-given-kana">
+                    <span class="reservation-contact__visually-hidden">めい</span>
+                    <input class="reservation-contact__control" id="customer-given-kana" type="text" name="customer_given_kana" placeholder="めい" required>
+                  </label>
+                </div>
+              </div>
+
+              <div class="reservation-contact__field">
+                <label class="reservation-contact__label" for="customer-email">メールアドレス<span class="reservation-contact__required">必須</span></label>
+                <input class="reservation-contact__control" id="customer-email" type="email" name="customer_email" autocomplete="email" placeholder="example@mail.com" required>
+              </div>
+
+              <div class="reservation-contact__field">
+                <label class="reservation-contact__label" for="customer-tel">電話番号<span class="reservation-contact__optional">任意</span></label>
+                <input class="reservation-contact__control" id="customer-tel" type="tel" name="customer_tel" autocomplete="tel" placeholder="090-0000-0000">
+              </div>
+            </div>
+          </fieldset>
+
+          <fieldset class="reservation-contact__fieldset reservation-contact__fieldset--message">
+            <legend class="reservation-contact__legend">ご質問・ご要望<span class="reservation-contact__required reservation-contact__required--message">必須</span></legend>
+            <div class="reservation-contact__field reservation-contact__field--full">
+              <label class="reservation-contact__visually-hidden" for="customer-message">ご質問・ご要望</label>
+              <textarea class="reservation-contact__textarea" id="customer-message" name="customer_message" maxlength="500" rows="5" placeholder="ご質問・ご要望がございましたらご記入ください。"></textarea>
+              <p class="reservation-contact__field-note">500文字まで入力できます。</p>
+            </div>
+          </fieldset>
+
+          <div class="reservation-contact__privacy">
+            <label class="reservation-contact__radio-label">
+              <input class="reservation-contact__radio" type="checkbox" name="privacy" value="agree" required>
+              <span class="reservation-contact__radio-text"><button class="reservation-contact__privacy-link" type="button" aria-expanded="false" aria-controls="privacy-policy-content">プライバシーポリシー</button>に同意の上、送信します。</span>
+            </label>
+            <div class="reservation-contact__privacy-content" id="privacy-policy-content" hidden>
+              <p>ご入力いただいた個人情報は、ご予約・お問い合わせへの対応、確認連絡、サービス提供のために利用します。</p>
+              <p>法令に基づく場合を除き、ご本人の同意なく第三者へ提供することはありません。</p>
+              <p>個人情報の開示・訂正・削除等をご希望の場合は、店舗までお問い合わせください。</p>
+            </div>
+          </div>
+
+          <div class="reservation-contact__submit-wrap">
+            <button class="reservation-contact__submit" type="submit">
+              <span class="reservation-contact__submit-text">確認画面へ</span>
+            </button>
+          </div>
+        </form>
+
+        <section class="reservation-contact__confirm reservation-contact__fade" aria-live="polite" hidden>
+          <h3 class="reservation-contact__confirm-title">入力内容のご確認</h3>
+          <div class="reservation-contact__confirm-body" data-confirm-body></div>
+          <div class="reservation-contact__confirm-actions">
+            <button class="reservation-contact__confirm-button reservation-contact__confirm-button--back" type="button" data-confirm-back>戻る</button>
+            <button class="reservation-contact__confirm-button reservation-contact__confirm-button--submit" type="button" data-confirm-submit>送信する</button>
+          </div>
+        </section>
+
+        <section class="reservation-contact__complete reservation-contact__fade" aria-live="polite" hidden>
+          <h3 class="reservation-contact__complete-title">送信が完了しました</h3>
+          <p class="reservation-contact__complete-text">お問い合わせありがとうございます。
+内容を確認のうえ、担当者よりご連絡いたします。</p>
+        </section>
+      </div>
+    </section>
+
+    <section class="asakusa-cta asakusa-cta--fade" aria-labelledby="asakusa-cta-title">
+      <div class="asakusa-cta__inner">
+        <figure class="asakusa-cta__image-wrap">
+          <img class="asakusa-cta__image asakusa-cta__fade asakusa-cta__fade--image" src="assets/img/img-asakusakaminarimon.png" alt="浅草雷門の風景">
+        </figure>
+
+        <div class="asakusa-cta__content">
+          <h2 class="asakusa-cta__title asakusa-cta__fade asakusa-cta__fade--text" id="asakusa-cta-title">浅草で出会う、残る香り。</h2>
+          <p class="asakusa-cta__text asakusa-cta__fade asakusa-cta__fade--text">
+            日本の人にも、世界の人にも開かれた街・浅草。<br>
+            その場所で、香りを通して感性やものづくりに触れる。<br>
+            浅草の思い出を香りでお持ち帰りください。
+          </p>
+          <div class="asakusa-cta__button-wrap asakusa-cta__fade asakusa-cta__fade--button">
+            <a class="asakusa-cta__button asakusa-cta__button--outline" href="#schedule">
+              <span class="asakusa-cta__button-text">スケジュール・空席状況をみる</span>
+              <span class="asakusa-cta__button-arrow" aria-hidden="true"></span>
+            </a>
+          </div>
+        </div>
+
+        <div class="asakusa-cta__reserve">
+          <h3 class="asakusa-cta__reserve-title asakusa-cta__fade asakusa-cta__fade--text">自分だけの香りを、浅草で。</h3>
+          <p class="asakusa-cta__reserve-text asakusa-cta__fade asakusa-cta__fade--text">
+            香りを選ぶ時間も、仕立てた一本も、<br>
+            きっと忘れられない思い出になります。<br>
+            感性をまとう瞬間を、ぜひご体験ください。
+          </p>
+          <div class="asakusa-cta__button-wrap asakusa-cta__fade asakusa-cta__fade--button">
+            <a class="asakusa-cta__button asakusa-cta__button--light" href="#reservation">
+              <span class="asakusa-cta__button-text">ワークショップを予約する</span>
+              <span class="asakusa-cta__button-arrow" aria-hidden="true"></span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <footer class="site-footer">
+    <div class="site-footer__inner">
+      <div class="site-footer__brand">
+        <a class="site-footer__logo-link" href="#" aria-label="inimu トップページ">
+          <img class="site-footer__logo" src="assets/img/img-footer_logo.png" alt="inimu">
+        </a>
+      </div>
+
+      <div class="site-footer__content">
+        <nav class="site-footer__nav" aria-label="フッターナビゲーション">
+          <ul class="site-footer__nav-list">
+            <li class="site-footer__nav-item"><a class="site-footer__nav-link" href="#flow">ワークショップの流れ</a></li>
+            <li class="site-footer__nav-item"><a class="site-footer__nav-link" href="#price">料金</a></li>
+            <li class="site-footer__nav-item"><a class="site-footer__nav-link" href="#schedule">スケジュール</a></li>
+            <li class="site-footer__nav-item"><a class="site-footer__nav-link" href="#shop">店舗情報</a></li>
+            <li class="site-footer__nav-item"><a class="site-footer__nav-link" href="#faq">よくあるご質問</a></li>
+            <li class="site-footer__nav-item"><a class="site-footer__nav-link" href="#voice">体験談</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <ul class="site-footer__social-list" aria-label="SNSリンク">
+        <li class="site-footer__social-item">
+          <a class="site-footer__social-link" href="#" aria-label="Instagram">
+            <img class="site-footer__social-icon" src="assets/icons/Instagram_Glyph_Gradient.png" alt="">
+          </a>
+        </li>
+        <li class="site-footer__social-item">
+          <a class="site-footer__social-link" href="#" aria-label="LINE">
+            <img class="site-footer__social-icon" src="assets/icons/LINE_Brand_icon.png" alt="">
+          </a>
+        </li>
+      </ul>
+
+      <p class="site-footer__copyright">© 2026 inimu. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="assets/js/script.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>売上管理</title>
+  <link rel="stylesheet" th:href="@{/admin/admin.css(v=${adminCssVersion})}">
+</head>
+<body>
+<header th:replace="~{admin/fragments :: header}"></header>
+<main class="page">
+  <h1><span th:replace="~{admin/fragments :: icon-sales}"></span>売上管理</h1>
+
+  <form class="toolbar" th:action="@{/admin/sales}" method="get">
+    <label>対象月<input type="month" name="month" th:value="${targetMonth}"></label>
+    <button type="submit">表示</button>
+    <a class="button secondary" th:href="@{/admin/sales/csv(month=${targetMonth})}">CSV出力</a>
+  </form>
+
+  <section class="metrics" aria-label="月次集計">
+    <div class="metric"><span>月合計</span><strong th:text="${monthlySummary.totalAmount()} + '円'">0円</strong></div>
+    <div class="metric"><span>予約件数</span><strong th:text="${monthlySummary.reservationCount()}">0</strong></div>
+    <div class="metric"><span>参加人数</span><strong th:text="${monthlySummary.participantCount()}">0</strong></div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-heading"><h2>日別売上</h2></div>
+    <div class="panel-body">
+      <table>
+        <thead><tr><th>日付</th><th>売上</th><th>予約件数</th><th>参加人数</th></tr></thead>
+        <tbody>
+        <tr th:each="row : ${dailySummaries}">
+          <td th:text="${row.date()}">date</td>
+          <td th:text="${row.totalAmount()} + '円'">0円</td>
+          <td th:text="${row.reservationCount()}">0</td>
+          <td th:text="${row.participantCount()}">0</td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(dailySummaries)}"><td colspan="4" class="muted">売上データはありません。</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</main>
+</body>
+</html>

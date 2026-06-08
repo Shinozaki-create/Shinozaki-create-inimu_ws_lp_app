@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ダッシュボード</title>
+  <link rel="stylesheet" th:href="@{/admin/admin.css(v=${adminCssVersion})}">
+</head>
+<body>
+<header th:replace="~{admin/fragments :: header}"></header>
+<main class="page">
+  <h1><span th:replace="~{admin/fragments :: icon-dashboard}"></span>ダッシュボード</h1>
+  <div class="dashboard-monthbar" aria-label="表示月切り替え">
+    <a class="month-nav-button" th:href="@{/admin(month=${prevMonthQuery})}" aria-label="前月へ">&lt;</a>
+    <p class="dashboard-month-label" th:text="${targetMonthLabel}">2026年6月</p>
+    <a class="month-nav-button" th:href="@{/admin(month=${nextMonthQuery})}" aria-label="次月へ">&gt;</a>
+  </div>
+
+  <section class="metrics" aria-label="集計">
+    <div class="metric metric-reservations">
+      <span>今月の予約件数</span>
+      <strong th:text="${monthReservationCount}">0</strong>
+      <p class="metric-trend" th:classappend="${monthReservationTrend.cssClass()}" th:text="${monthReservationTrend.text()}">前月比 0%</p>
+    </div>
+    <div class="metric metric-participants">
+      <span>今月の参加人数</span>
+      <strong th:text="${monthParticipantCount}">0</strong>
+      <p class="metric-trend" th:classappend="${monthParticipantTrend.cssClass()}" th:text="${monthParticipantTrend.text()}">前月比 0%</p>
+    </div>
+    <div class="metric metric-sales">
+      <span>今月の売上</span>
+      <strong th:text="${monthSalesDisplay}">¥0</strong>
+      <p class="metric-trend" th:classappend="${monthSalesTrend.cssClass()}" th:text="${monthSalesTrend.text()}">前月比 0%</p>
+    </div>
+    <div class="metric metric-inquiries">
+      <span>問い合わせ</span>
+      <div class="metric-breakdown">
+        <div class="metric-breakdown-item">
+          <span class="metric-chip metric-chip-waiting">未対応</span>
+          <strong th:text="${openInquiryCount}">0</strong>
+        </div>
+        <div class="metric-breakdown-item">
+          <span class="metric-chip metric-chip-progress">対応中</span>
+          <strong th:text="${inProgressInquiryCount}">0</strong>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="dashboard-layout">
+    <section class="panel">
+      <div class="panel-heading"><h2>今月の予約</h2></div>
+      <div class="panel-body">
+        <table>
+          <thead><tr><th>予約番号</th><th>日付</th><th>時間</th><th>氏名</th><th>人数</th><th>ステータス</th></tr></thead>
+          <tbody>
+          <tr th:each="reservation : ${monthReservations}">
+            <td><a th:href="@{/admin/reservations/{id}(id=${reservation.id})}" th:text="${reservation.reservationCode}">code</a></td>
+            <td th:text="${reservation.reservationDate}">date</td>
+            <td th:text="${#temporals.format(reservation.reservationTime, 'HH:mm')}">time</td>
+            <td th:text="${reservation.customerName()}">name</td>
+            <td th:text="${reservation.reservationCount}">0</td>
+            <td><span class="badge" th:attr="data-status=${reservation.status.name()}" th:text="${reservation.status.label}">status</span></td>
+          </tr>
+          <tr th:if="${#lists.isEmpty(monthReservations)}"><td colspan="6" class="muted">予約はありません。</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel calendar-panel">
+      <div class="panel-heading calendar-panel-heading">
+        <div class="calendar-panel-title">開催日</div>
+      </div>
+      <div class="panel-body">
+        <h2 class="calendar-panel-month" th:text="${targetMonthLabel}">2026年6月</h2>
+        <div class="calendar-weekdays" aria-hidden="true">
+          <span>日</span>
+          <span>月</span>
+          <span>火</span>
+          <span>水</span>
+          <span>木</span>
+          <span>金</span>
+          <span>土</span>
+        </div>
+        <div class="calendar-grid">
+          <th:block th:each="week : ${calendarWeeks}">
+            <th:block th:each="day : ${week}">
+              <div class="calendar-day"
+                   th:classappend="${!day.currentMonth() ? ' is-outside' : (day.hasSchedule() ? (day.open() ? ' is-scheduled' : ' is-paused') : '')}">
+                <span class="calendar-day-number" th:text="${day.date().dayOfMonth}">1</span>
+              </div>
+            </th:block>
+          </th:block>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+</body>
+</html>
