@@ -3060,8 +3060,8 @@ button.reservation-contact__calendar-date:focus-visible {
 
 /* Asakusa CTA fade animation */
 .asakusa-cta--fade .asakusa-cta__fade {
-  opacity: 1;
-  transform: none;
+  opacity: 0;
+  transform: translateY(18px);
   transition: opacity 6s cubic-bezier(0.22, 1, 0.36, 1), transform 6s cubic-bezier(0.22, 1, 0.36, 1);
   will-change: opacity, transform;
 }
@@ -4928,8 +4928,8 @@ body {
 
 /* Basic info fade animation */
 .basic-info--fade .basic-info__fade {
-  opacity: 1;
-  transform: none;
+  opacity: 0;
+  transform: translateY(18px);
   transition: opacity 6s cubic-bezier(0.22, 1, 0.36, 1), transform 6s cubic-bezier(0.22, 1, 0.36, 1);
   will-change: opacity, transform;
 }
@@ -4940,12 +4940,14 @@ body {
 }
 
 .basic-info--fade .basic-info__gallery-image {
-  transform: none;
-  filter: none;
+  opacity: 0;
+  transform: translate(-38px, 18px);
+  filter: blur(3px);
   transition: opacity 7.2s cubic-bezier(0.16, 1, 0.3, 1), transform 7.2s cubic-bezier(0.16, 1, 0.3, 1), filter 7.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .basic-info--fade.is-visible .basic-info__gallery-image {
+  opacity: 1;
   transform: translate(0, 0);
   filter: blur(0);
 }
@@ -5019,15 +5021,15 @@ body {
 
 /* Workshop flow fade animation */
 .workshop-flow--fade .workshop-flow__fade {
-  opacity: 1;
-  transform: none;
+  opacity: 0;
+  transform: translateX(-18px);
   transition: opacity 6s cubic-bezier(0.22, 1, 0.36, 1), transform 6s cubic-bezier(0.22, 1, 0.36, 1);
   will-change: opacity, transform;
 }
 
 .workshop-flow--fade .workshop-flow__card:not(:last-child)::after {
-  opacity: 1;
-  transform: none;
+  opacity: 0;
+  transform: translateX(-18px);
   transition: opacity 6s cubic-bezier(0.22, 1, 0.36, 1), transform 6s cubic-bezier(0.22, 1, 0.36, 1);
   will-change: opacity, transform;
 }
@@ -5115,8 +5117,8 @@ body {
 .price--fade .section-fade__item,
 .schedule--fade .section-fade__item,
 .shop-info--fade .section-fade__item {
-  opacity: 1;
-  transform: none;
+  opacity: 0;
+  transform: translateY(18px);
   transition: opacity 6s cubic-bezier(0.22, 1, 0.36, 1), transform 6s cubic-bezier(0.22, 1, 0.36, 1);
   will-change: opacity, transform;
 }
@@ -5210,8 +5212,8 @@ body {
 
 /* Reviews card fade animation */
 .reviews__card-content {
-  opacity: 1;
-  transform: none;
+  opacity: 0;
+  transform: translateY(18px);
   transition: opacity 6s cubic-bezier(0.22, 1, 0.36, 1), transform 6s cubic-bezier(0.22, 1, 0.36, 1);
   transition-delay: var(--reviews-card-delay, 0s);
   will-change: opacity, transform;
@@ -5235,8 +5237,8 @@ body {
 /* FAQ inner-only fade animation */
 .faq--fade .faq__question > *,
 .faq--fade .faq__answer > * {
-  opacity: 1;
-  transform: none;
+  opacity: 0;
+  transform: translateY(18px);
   transition-property: opacity, transform;
   transition-duration: 6s;
   transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
@@ -5270,8 +5272,8 @@ body {
 
 /* Reservation form fade animation */
 .reservation-contact--fade .reservation-contact__fade {
-  opacity: 1;
-  transform: none;
+  opacity: 0;
+  transform: translateY(18px);
   transition: opacity 6s cubic-bezier(0.22, 1, 0.36, 1), transform 6s cubic-bezier(0.22, 1, 0.36, 1);
   will-change: opacity, transform;
 }
@@ -5302,19 +5304,21 @@ body {
 /* Image reveal animation applied to price, shop info, and basic info images */
 .price--fade .price__image-wrap.section-fade__item,
 .shop-info--fade .shop-info__image-wrap.section-fade__item {
-  transform: none;
-  transition: opacity 6s cubic-bezier(0.22, 1, 0.36, 1);
-  will-change: opacity;
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 6s cubic-bezier(0.22, 1, 0.36, 1), transform 6s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
 }
 
 .price--fade.is-visible .price__image-wrap.section-fade__item,
 .shop-info--fade.is-visible .shop-info__image-wrap.section-fade__item {
-  transform: none;
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .price--fade .price__image,
-.shop-info--fade .shop-info__image,
-.basic-info--fade .basic-info__gallery-image {
+.shop-info--fade .shop-info__image {
+  opacity: 0;
   transform: none;
   filter: none;
   -webkit-mask-image: linear-gradient(to bottom, transparent 0%, transparent 24%, rgba(0, 0, 0, 0.08) 30%, rgba(0, 0, 0, 0.22) 35%, rgba(0, 0, 0, 0.45) 40%, rgba(0, 0, 0, 0.7) 45%, #000000 50%, #000000 100%);
@@ -5323,13 +5327,28 @@ body {
   mask-size: 100% 200%;
   -webkit-mask-position: 0 0;
   mask-position: 0 0;
-  transition: -webkit-mask-position 6s cubic-bezier(0.22, 1, 0.36, 1), mask-position 6s cubic-bezier(0.22, 1, 0.36, 1), opacity 6s cubic-bezier(0.22, 1, 0.36, 1);
-  will-change: -webkit-mask-position, mask-position, opacity;
+  transition: opacity 6s cubic-bezier(0.22, 1, 0.36, 1), -webkit-mask-position 6s cubic-bezier(0.22, 1, 0.36, 1), mask-position 6s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, -webkit-mask-position, mask-position;
+}
+
+.basic-info--fade .basic-info__gallery-image {
+  opacity: 0;
+  transform: translate(-38px, 18px);
+  filter: blur(3px);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, transparent 24%, rgba(0, 0, 0, 0.08) 30%, rgba(0, 0, 0, 0.22) 35%, rgba(0, 0, 0, 0.45) 40%, rgba(0, 0, 0, 0.7) 45%, #000000 50%, #000000 100%);
+  mask-image: linear-gradient(to bottom, transparent 0%, transparent 24%, rgba(0, 0, 0, 0.08) 30%, rgba(0, 0, 0, 0.22) 35%, rgba(0, 0, 0, 0.45) 40%, rgba(0, 0, 0, 0.7) 45%, #000000 50%, #000000 100%);
+  -webkit-mask-size: 100% 200%;
+  mask-size: 100% 200%;
+  -webkit-mask-position: 0 0;
+  mask-position: 0 0;
+  transition: opacity 7.2s cubic-bezier(0.16, 1, 0.3, 1), -webkit-mask-position 7.2s cubic-bezier(0.16, 1, 0.3, 1), mask-position 7.2s cubic-bezier(0.16, 1, 0.3, 1), transform 7.2s cubic-bezier(0.16, 1, 0.3, 1), filter 7.2s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, -webkit-mask-position, mask-position, transform, filter;
 }
 
 .price--fade.is-visible .price__image,
 .shop-info--fade.is-visible .shop-info__image,
 .basic-info--fade.is-visible .basic-info__gallery-image {
+  opacity: 1;
   transform: none;
   filter: none;
   -webkit-mask-position: 0 100%;

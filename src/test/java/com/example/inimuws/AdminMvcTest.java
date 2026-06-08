@@ -73,8 +73,12 @@ class AdminMvcTest {
     }
 
     @Test
-    void rootServesPublicHomepageAndTodoRoutesToAdmin() throws Exception {
+    void publicHomepageIsRoutedThroughMvcAndTodoRoutesToAdmin() throws Exception {
         mockMvc.perform(get("/"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("inimu workshop")));
+
+        mockMvc.perform(get("/index"))
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("inimu workshop")));
 

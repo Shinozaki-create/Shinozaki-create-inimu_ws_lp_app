@@ -1,11 +1,18 @@
-﻿(() => {
+(() => {
   'use strict';
 
   document.addEventListener('DOMContentLoaded', () => {
-    const dayNames = ['譌･', '譛・, '轣ｫ', '豌ｴ', '譛ｨ', '驥・, '蝨・];
-    const pricePerPerson = 5500;
+    const WEEKDAY_NAMES = ['日', '月', '火', '水', '木', '金', '土'];
+    const PRICE_PER_PERSON = 5500;
+    const MAX_RESERVATION_COUNT = 10;
+    const LOW_AVAILABILITY_THRESHOLD = 5;
+
     const scheduleMap = new Map();
     const slotCache = new Map();
+
+    const animatedSections = Array.from(document.querySelectorAll(
+      '.basic-info--fade, .workshop-flow--fade, .price--fade, .schedule--fade, .shop-info--fade, .reviews--fade, .faq--fade, .reservation-contact--fade, .asakusa-cta--fade'
+    ));
 
     const siteHeader = document.querySelector('.site-header');
     const reservationSection = document.getElementById('reservation');
@@ -48,35 +55,84 @@
     const reviewNextButton = document.querySelector('[data-review-next]');
     const faqItems = Array.from(document.querySelectorAll('.faq__item'));
 
-    const initialDateKey = reservationDateInput && isDateKey(reservationDateInput.value)
-      ? reservationDateInput.value
-      : '';
+    const initialDateKey = isDateKey(reservationDateInput?.value || '') ? reservationDateInput.value : '';
 
-    let currentMonth = initialDateKey ? startOfMonth(parseDateKey(initialDateKey)) : startOfMonth(new Date());
-    let currentSelectedDate = initialDateKey || null;
+    let selectedDateKey = initialDateKey || null;
+    let viewMonth = selectedDateKey ? startOfMonth(parseDateKey(selectedDateKey)) : startOfMonth(new Date());
+    let minScheduleMonth = startOfMonth(new Date());
+    let maxScheduleMonth = startOfMonth(new Date());
     let reviewCurrentPage = 1;
-    let slotRequestId = 0;
+    let slotRequestToken = 0;
 
-    showSections();
+    setupSectionReveal();
     setupHeaderScroll();
     setupPrivacyToggle();
-    setupReviews();
     setupFaq();
+    setupReviews();
     setupForm();
+    setupMonthNavigation();
 
-    syncSelectedDate(currentSelectedDate);
-    void refreshSchedules({ preserveSelection: Boolean(currentSelectedDate) });
+    syncSelectedDate(selectedDateKey);
+    updateMonthControls();
+    void refreshSchedules({ preserveSelection: true });
 
-    function showSections() {
-      document.querySelectorAll(
-        '.basic-info--fade, .workshop-flow--fade, .price--fade, .schedule--fade, .shop-info--fade, .asakusa-cta--fade, .reservation-contact--fade, .reviews--fade, .faq--fade'
-      ).forEach((section) => section.classList.add('is-visible'));
+    function setupSectionReveal() {
+      if (!animatedSections.length) return;
 
-      faqItems.forEach((item) => item.classList.add('is-content-visible'));
+      const reveal = (section) => section.classList.add('is-visible');
+      const unrevealed = new Set(animatedSections);
+      let queued = false;
+
+      const revealVisibleSections = () => {
+        unrevealed.forEach((section) => {
+          if (isElementInViewport(section)) {
+            reveal(section);
+            unrevealed.delete(section);
+          }
+        });
+      };
+
+      const scheduleRevealCheck = () => {
+        if (queued) return;
+        queued = true;
+        window.requestAnimationFrame(() => {
+          queued = false;
+          revealVisibleSections();
+        });
+      };
+
+      if (!('IntersectionObserver' in window)) {
+        animatedSections.forEach(reveal);
+        return;
+      }
+
+      const observer = new IntersectionObserver((entries, io) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          reveal(entry.target);
+          unrevealed.delete(entry.target);
+          io.unobserve(entry.target);
+        });
+      }, {
+        root: null,
+        rootMargin: '0px 0px -12% 0px',
+        threshold: 0.16
+      });
+
+      animatedSections.forEach((section) => observer.observe(section));
+
+      window.requestAnimationFrame(() => {
+        revealVisibleSections();
+      });
+
+      window.addEventListener('scroll', scheduleRevealCheck, { passive: true });
+      window.addEventListener('resize', scheduleRevealCheck, { passive: true });
+      window.addEventListener('load', scheduleRevealCheck, { once: true });
     }
 
     function setupHeaderScroll() {
       if (!siteHeader) return;
+
       const update = () => siteHeader.classList.toggle('is-scrolled', window.scrollY > 0);
       update();
       window.addEventListener('scroll', update, { passive: true });
@@ -84,6 +140,7 @@
 
     function setupPrivacyToggle() {
       if (!privacyLink || !privacyContent) return;
+
       privacyLink.addEventListener('click', () => {
         const willShow = privacyContent.hidden;
         privacyContent.hidden = !willShow;
@@ -92,38 +149,56 @@
     }
 
     function setupFaq() {
-      faqItems.forEach((item) => item.classList.add('is-content-visible'));
+      faqItems.forEach((item, index) => {
+        item.style.setProperty('--faq-item-delay', `${index * 0.12}s`);
+        item.classList.add('is-content-visible');
+      });
     }
 
     function setupReviews() {
       if (!reviewCards.length || !reviewPageButtons.length) return;
 
-      const maxReviewPage = reviewCards.reduce((max, card) => Math.max(max, Number(card.dataset.reviewPage) || 1), 1);
+      const maxReviewPage = reviewCards.reduce((max, card) => {
+        const page = Number(card.dataset.reviewPage) || 1;
+        return Math.max(max, page);
+      }, 1);
+
+      const pageCounts = new Map();
+      reviewCards.forEach((card) => {
+        const page = Number(card.dataset.reviewPage) || 1;
+        const currentIndex = pageCounts.get(page) || 0;
+        card.style.setProperty('--reviews-card-delay', `${currentIndex * 0.12}s`);
+        pageCounts.set(page, currentIndex + 1);
+      });
 
       const updatePagination = (page) => {
-        let startPage = page >= 6 ? Math.max(2, page - 4) : 1;
-        let endPage = Math.min(maxReviewPage, startPage + 4);
+        const windowSize = 5;
+        let startPage = Math.max(1, page - 2);
+        let endPage = startPage + windowSize - 1;
 
-        if (endPage - startPage < 4) {
-          startPage = Math.max(1, endPage - 4);
+        if (endPage > maxReviewPage) {
+          endPage = maxReviewPage;
+          startPage = Math.max(1, endPage - windowSize + 1);
         }
 
         reviewPageButtons.forEach((button) => {
           const buttonPage = Number(button.dataset.reviewPageButton) || 1;
           const visible = buttonPage >= startPage && buttonPage <= endPage;
-          const current = buttonPage === page;
           button.hidden = !visible;
-          button.classList.toggle('reviews__page--current', current);
-          if (current) button.setAttribute('aria-current', 'page');
-          else button.removeAttribute('aria-current');
+          button.classList.toggle('reviews__page--current', buttonPage === page);
+          if (buttonPage === page) {
+            button.setAttribute('aria-current', 'page');
+          } else {
+            button.removeAttribute('aria-current');
+          }
         });
 
-        if (reviewPrevButton) reviewPrevButton.hidden = page < 6;
+        if (reviewPrevButton) reviewPrevButton.hidden = page <= 1;
         if (reviewNextButton) reviewNextButton.hidden = page >= maxReviewPage;
       };
 
       const showPage = (page) => {
-        reviewCurrentPage = Math.min(Math.max(page, 1), maxReviewPage);
+        reviewCurrentPage = clamp(page, 1, maxReviewPage);
         reviewCards.forEach((card) => {
           const visible = Number(card.dataset.reviewPage) === reviewCurrentPage;
           card.hidden = !visible;
@@ -133,44 +208,61 @@
       };
 
       reviewPageButtons.forEach((button) => {
-        button.addEventListener('click', () => showPage(Number(button.dataset.reviewPageButton) || 1));
+        button.addEventListener('click', () => {
+          showPage(Number(button.dataset.reviewPageButton) || 1);
+        });
       });
-      if (reviewPrevButton) reviewPrevButton.addEventListener('click', () => showPage(reviewCurrentPage - 1));
-      if (reviewNextButton) reviewNextButton.addEventListener('click', () => showPage(reviewCurrentPage + 1));
+
+      if (reviewPrevButton) {
+        reviewPrevButton.addEventListener('click', () => showPage(reviewCurrentPage - 1));
+      }
+
+      if (reviewNextButton) {
+        reviewNextButton.addEventListener('click', () => showPage(reviewCurrentPage + 1));
+      }
 
       showPage(1);
+    }
+
+    function setupMonthNavigation() {
+      const goMonth = (delta) => {
+        const candidate = addMonths(viewMonth, delta);
+        if (compareMonths(candidate, minScheduleMonth) < 0 || compareMonths(candidate, maxScheduleMonth) > 0) {
+          return;
+        }
+        viewMonth = candidate;
+        renderCalendars();
+      };
+
+      if (schedulePrev) schedulePrev.addEventListener('click', () => goMonth(-1));
+      if (scheduleNext) scheduleNext.addEventListener('click', () => goMonth(1));
+      if (reservationPrev) reservationPrev.addEventListener('click', () => goMonth(-1));
+      if (reservationNext) reservationNext.addEventListener('click', () => goMonth(1));
     }
 
     function setupForm() {
       if (!form) return;
 
-      const bookingFields = Array.from(form.querySelectorAll('.reservation-contact__date-value, .reservation-contact__booking-control'));
+      const bookingFields = [reservationDateInput, reservationTimeSelect, reservationCountSelect].filter(Boolean);
       const familyNameInput = form.querySelector('#customer-family-name');
       const givenNameInput = form.querySelector('#customer-given-name');
       const familyKanaInput = form.querySelector('#customer-family-kana');
       const givenKanaInput = form.querySelector('#customer-given-kana');
       const emailInput = form.querySelector('#customer-email');
-      const submitButton = form.querySelector('.reservation-contact__submit');
 
       form.setAttribute('novalidate', 'novalidate');
 
       const updateMode = () => {
         const inquiryMode = isInquiryMode();
         form.classList.toggle('reservation-contact__form--inquiry-only', inquiryMode);
-        bookingFields.forEach((field) => { field.required = !inquiryMode; });
+
+        bookingFields.forEach((field) => {
+          field.required = !inquiryMode;
+        });
+
         if (messageTextarea) messageTextarea.required = inquiryMode;
-        if (reservationCountSelect) reservationCountSelect.required = !inquiryMode;
         if (reservationTimeSelect) reservationTimeSelect.required = !inquiryMode;
-      };
-
-      const clearInvalid = (field) => {
-        const wrap = getFieldWrap(field);
-        if (wrap) wrap.classList.remove('is-invalid');
-      };
-
-      const markInvalid = (field) => {
-        const wrap = getFieldWrap(field);
-        if (wrap) wrap.classList.add('is-invalid');
+        if (reservationCountSelect) reservationCountSelect.required = !inquiryMode;
       };
 
       const validate = () => {
@@ -200,7 +292,7 @@
           }
 
           if (field === reservationDateInput) {
-            if (!inquiryMode && !currentSelectedDate) {
+            if (!inquiryMode && !selectedDateKey) {
               markInvalid(field);
               return field;
             }
@@ -232,7 +324,7 @@
           }
 
           if (field === emailInput) {
-            if (!isValidEmailValue(field.value)) {
+            if (!field.checkValidity()) {
               markInvalid(field);
               return field;
             }
@@ -253,25 +345,27 @@
 
         const payload = buildPayload();
         const selectedSlot = getSelectedSlot();
-        const inquiryMode = payload.inquiryOnly;
-        const dateLabel = inquiryMode ? '縺雁撫縺・粋繧上○縺ｮ縺ｿ' : formatDateKey(payload.reservationDate);
-        const timeLabel = inquiryMode ? '縺雁撫縺・粋繧上○縺ｮ縺ｿ' : (selectedSlot ? `${selectedSlot.startTime}縲・{selectedSlot.endTime}` : '譛ｪ驕ｸ謚・);
-        const countLabel = inquiryMode ? '縺雁撫縺・粋繧上○縺ｮ縺ｿ' : `${payload.reservationCount}蜷港;
-        const totalLabel = inquiryMode ? '窶・ : `ﾂ･${formatCurrency(payload.reservationCount * pricePerPerson)}`;
-        const nameLabel = [payload.customerFamilyName, payload.customerGivenName].filter(Boolean).join(' ');
-        const kanaLabel = [payload.customerFamilyKana, payload.customerGivenKana].filter(Boolean).join(' ');
+        const inquiryMode = payload.inquiry_only;
+        const dateLabel = inquiryMode ? 'お問い合わせのみ' : formatDateLabel(payload.reservation_date);
+        const timeLabel = inquiryMode
+          ? 'お問い合わせのみ'
+          : (selectedSlot ? `${selectedSlot.startTime} ～ ${selectedSlot.endTime}` : '未選択');
+        const countLabel = inquiryMode ? 'お問い合わせのみ' : `${payload.reservation_count}名`;
+        const totalLabel = inquiryMode ? '-' : `${formatMoney(payload.reservation_count * PRICE_PER_PERSON)}円`;
+        const nameLabel = [payload.customer_family_name, payload.customer_given_name].filter(Boolean).join(' ');
+        const kanaLabel = [payload.customer_family_kana, payload.customer_given_kana].filter(Boolean).join(' ');
 
         confirmBody.innerHTML = `
           <dl class="reservation-contact__confirm-list">
-            ${confirmRow('縺泌ｸ梧悍譌･', dateLabel)}
-            ${confirmRow('縺泌ｸ梧悍譎る俣', timeLabel)}
-            ${confirmRow('莠ｺ謨ｰ', countLabel)}
-            ${confirmRow('蜷郁ｨ磯≡鬘・, totalLabel, 'reservation-contact__confirm-total')}
-            ${confirmRow('縺雁錐蜑・, nameLabel)}
-            ${confirmRow('縺ｵ繧翫′縺ｪ', kanaLabel)}
-            ${confirmRow('繝｡繝ｼ繝ｫ繧｢繝峨Ξ繧ｹ', payload.customerEmail)}
-            ${confirmRow('髮ｻ隧ｱ逡ｪ蜿ｷ', payload.customerTel || '窶・)}
-            ${confirmRow('縺碑ｦ∵悍', payload.customerMessage || '窶・)}
+            ${confirmRow('予約日', dateLabel)}
+            ${confirmRow('予約時間', timeLabel)}
+            ${confirmRow('人数', countLabel)}
+            ${confirmRow('合計', totalLabel, 'reservation-contact__confirm-total')}
+            ${confirmRow('お名前', nameLabel)}
+            ${confirmRow('フリガナ', kanaLabel)}
+            ${confirmRow('メールアドレス', payload.customer_email)}
+            ${confirmRow('電話番号', payload.customer_tel || '-')}
+            ${confirmRow('メッセージ', payload.customer_message || '-')}
           </dl>
         `;
 
@@ -290,9 +384,14 @@
 
       const showComplete = (responseBody) => {
         if (!completeSection || !completeText) return;
-        const message = responseBody && responseBody.message ? responseBody.message : '騾∽ｿ｡繧貞女縺台ｻ倥￠縺ｾ縺励◆縲・;
+
+        const message = responseBody && responseBody.message
+          ? responseBody.message
+          : '送信が完了しました。';
         const code = responseBody && responseBody.reservationCode ? responseBody.reservationCode : '';
-        completeText.innerHTML = escapeHtml(message) + (code ? `<br>莠育ｴ・分蜿ｷ: ${escapeHtml(code)}` : '');
+
+        completeText.innerHTML = escapeHtml(message) + (code ? `<br>受付番号: ${escapeHtml(code)}` : '');
+
         if (confirmSection) confirmSection.hidden = true;
         form.hidden = true;
         completeSection.hidden = false;
@@ -301,15 +400,17 @@
 
       form.addEventListener('submit', (event) => {
         event.preventDefault();
+
         const invalidField = validate();
         if (invalidField) {
           const target = getFieldWrap(invalidField) || invalidField;
           target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          if (typeof invalidField.focus === 'function') {
+          if (typeof invalidField.focus === 'function' && invalidField.type !== 'hidden') {
             invalidField.focus({ preventScroll: true });
           }
           return;
         }
+
         showConfirm();
       });
 
@@ -321,7 +422,7 @@
         confirmSubmitButton.addEventListener('click', async () => {
           const originalText = confirmSubmitButton.textContent;
           confirmSubmitButton.disabled = true;
-          confirmSubmitButton.textContent = '騾∽ｿ｡荳ｭ...';
+          confirmSubmitButton.textContent = '送信中...';
 
           try {
             const response = await fetch('/api/reservations', {
@@ -335,13 +436,15 @@
 
             const responseBody = await response.json().catch(() => null);
             if (!response.ok) {
-              throw new Error(responseBody && responseBody.message ? responseBody.message : `騾∽ｿ｡縺ｫ螟ｱ謨励＠縺ｾ縺励◆ (${response.status})`);
+              throw new Error(responseBody && responseBody.message
+                ? responseBody.message
+                : `送信に失敗しました（${response.status}）`);
             }
 
             showComplete(responseBody);
             await refreshSchedules({ preserveSelection: true });
           } catch (error) {
-            window.alert(error && error.message ? error.message : '騾∽ｿ｡縺ｫ螟ｱ謨励＠縺ｾ縺励◆縲・);
+            window.alert(error && error.message ? error.message : '送信に失敗しました。');
           } finally {
             confirmSubmitButton.disabled = false;
             confirmSubmitButton.textContent = originalText;
@@ -356,6 +459,21 @@
         });
       }
 
+      if (reservationTimeSelect) {
+        reservationTimeSelect.addEventListener('change', () => {
+          clearInvalid(reservationTimeSelect);
+          updateCountOptions(currentAvailableSeatCount(), reservationCountSelect ? reservationCountSelect.value : '');
+        });
+      }
+
+      if (reservationCountSelect) {
+        reservationCountSelect.addEventListener('change', () => clearInvalid(reservationCountSelect));
+      }
+
+      if (messageTextarea) {
+        messageTextarea.addEventListener('input', () => clearInvalid(messageTextarea));
+      }
+
       form.querySelectorAll('input, select, textarea').forEach((field) => {
         field.addEventListener('input', () => clearInvalid(field));
         field.addEventListener('change', () => clearInvalid(field));
@@ -368,10 +486,16 @@
       try {
         const response = await fetch('/api/schedules', { headers: { Accept: 'application/json' } });
         const schedules = await response.json().catch(() => []);
-        if (!response.ok) throw new Error('髢句ぎ譌･繝・・繧ｿ縺ｮ蜿門ｾ励↓螟ｱ謨励＠縺ｾ縺励◆縲・);
+
+        if (!response.ok) {
+          throw new Error('スケジュールデータの読み込みに失敗しました。');
+        }
+
         scheduleMap.clear();
         (Array.isArray(schedules) ? schedules : []).forEach((schedule) => {
-          if (schedule && schedule.date) scheduleMap.set(schedule.date, schedule);
+          if (schedule && schedule.date) {
+            scheduleMap.set(schedule.date, schedule);
+          }
         });
       } catch (error) {
         console.error(error);
@@ -379,62 +503,205 @@
       }
 
       slotCache.clear();
+      updateScheduleBounds();
 
-      if (!preserveSelection || !currentSelectedDate || !scheduleMap.has(currentSelectedDate) || !isScheduleSelectable(currentSelectedDate)) {
-        currentSelectedDate = chooseDefaultDate();
+      selectedDateKey = chooseSelectedDate(preserveSelection);
+      if (selectedDateKey) {
+        viewMonth = startOfMonth(parseDateKey(selectedDateKey));
       }
 
-      currentMonth = startOfMonth(parseDateKey(currentSelectedDate || chooseFallbackDate()));
-      syncSelectedDate(currentSelectedDate);
+      syncSelectedDate(selectedDateKey);
       renderCalendars();
 
-      if (currentSelectedDate) {
-        await loadSlotsForDate(currentSelectedDate, reservationTimeSelect ? reservationTimeSelect.value : '');
+      if (selectedDateKey) {
+        await loadSlotsForDate(selectedDateKey, reservationTimeSelect ? reservationTimeSelect.value : '');
       } else {
-        renderEmptySlots();
+        renderEmptySlots('日付を選択してください。');
+        renderTimeOptions([], null, '');
+        updateCountOptions(0, '');
       }
     }
 
+    function updateScheduleBounds() {
+      const orderedDates = Array.from(scheduleMap.keys()).sort();
+      if (!orderedDates.length) {
+        minScheduleMonth = startOfMonth(viewMonth);
+        maxScheduleMonth = startOfMonth(viewMonth);
+        return;
+      }
+
+      minScheduleMonth = startOfMonth(parseDateKey(orderedDates[0]));
+      maxScheduleMonth = startOfMonth(parseDateKey(orderedDates[orderedDates.length - 1]));
+    }
+
+    function chooseSelectedDate(preserveSelection) {
+      if (preserveSelection && selectedDateKey && scheduleMap.has(selectedDateKey)) {
+        return selectedDateKey;
+      }
+
+      const orderedDates = Array.from(scheduleMap.keys()).sort();
+      if (!orderedDates.length) {
+        return selectedDateKey;
+      }
+
+      return orderedDates[0];
+    }
+
     function renderCalendars() {
+      const renderedMonth = startOfMonth(viewMonth);
+
       renderCalendar({
         body: scheduleCalendarBody,
         monthLabel: scheduleMonthLabel,
         caption: scheduleCaption,
-        prefix: 'schedule',
-        selectedDate: currentSelectedDate,
-        monthDate: currentMonth,
-        onSelectDate: (dateKey) => void selectDate(dateKey)
+        baseClass: 'schedule',
+        monthDate: renderedMonth,
+        selectedDateKey,
+        onSelectDate: (dateKey) => void selectDate(dateKey, reservationTimeSelect ? reservationTimeSelect.value : '')
       });
 
       renderCalendar({
         body: reservationCalendarBody,
         monthLabel: reservationMonthLabel,
         caption: reservationCaption,
-        prefix: 'reservation-contact',
-        selectedDate: currentSelectedDate,
-        monthDate: currentMonth,
-        onSelectDate: (dateKey) => void selectDate(dateKey)
+        baseClass: 'reservation-contact',
+        monthDate: renderedMonth,
+        selectedDateKey,
+        onSelectDate: (dateKey) => void selectDate(dateKey, reservationTimeSelect ? reservationTimeSelect.value : '')
       });
+
+      updateMonthControls();
+    }
+
+    function renderCalendar({ body, monthLabel, caption, baseClass, monthDate, selectedDateKey: currentSelectedDate, onSelectDate }) {
+      if (!body) return;
+
+      if (monthLabel) {
+        monthLabel.textContent = formatMonthLabel(monthDate);
+      }
+
+      if (caption) {
+        caption.textContent = `${formatMonthLabel(monthDate)}のカレンダー`;
+      }
+
+      const year = monthDate.getFullYear();
+      const monthIndex = monthDate.getMonth();
+      const firstDay = new Date(year, monthIndex, 1);
+      const firstWeekday = firstDay.getDay();
+      const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
+      const rowCount = Math.ceil((firstWeekday + daysInMonth) / 7);
+
+      const rows = [];
+      for (let rowIndex = 0; rowIndex < rowCount; rowIndex += 1) {
+        const cells = [];
+        for (let columnIndex = 0; columnIndex < 7; columnIndex += 1) {
+          const cellIndex = rowIndex * 7 + columnIndex;
+          if (cellIndex < firstWeekday || cellIndex >= firstWeekday + daysInMonth) {
+            cells.push(`<td class="${baseClass}__calendar-cell ${baseClass}__calendar-cell--empty"></td>`);
+            continue;
+          }
+
+          const dayNumber = cellIndex - firstWeekday + 1;
+          const date = new Date(year, monthIndex, dayNumber);
+          const dateKey = toDateKey(date);
+          const schedule = scheduleMap.get(dateKey) || null;
+          const dayState = getCalendarDayState(schedule);
+          const isSelected = dateKey === currentSelectedDate;
+          const dayClasses = [
+            `${baseClass}__calendar-cell`,
+            `${baseClass}__calendar-cell--${dayState.cellState}`,
+            columnIndex === 0 ? `${baseClass}__calendar-cell--sun` : '',
+            columnIndex === 6 ? `${baseClass}__calendar-cell--sat` : '',
+            isSelected ? `${baseClass}__calendar-cell--selected` : ''
+          ].filter(Boolean).join(' ');
+
+        const ariaLabel = `${formatDateLabel(dateKey)} ${dayState.ariaLabel}`;
+        const openCell = dayState.selectable;
+
+          if (openCell) {
+            cells.push(`
+              <td class="${dayClasses}">
+                <button class="${baseClass}__calendar-date" type="button" data-date="${escapeHtml(dateKey)}" aria-pressed="${String(isSelected)}" aria-label="${escapeHtml(ariaLabel)}">
+                  <span class="${baseClass}__calendar-number">${dayNumber}</span>
+                  <span class="${baseClass}__calendar-mark">${escapeHtml(dayState.mark)}</span>
+                </button>
+              </td>
+            `);
+          } else {
+            cells.push(`
+              <td class="${dayClasses}">
+                <span class="${baseClass}__calendar-date" aria-label="${escapeHtml(ariaLabel)}">
+                  <span class="${baseClass}__calendar-number">${dayNumber}</span>
+                  <span class="${baseClass}__calendar-mark">${escapeHtml(dayState.mark)}</span>
+                </span>
+              </td>
+            `);
+          }
+        }
+        rows.push(`<tr class="${baseClass}__calendar-row">${cells.join('')}</tr>`);
+      }
+
+      body.innerHTML = rows.join('');
+
+      body.querySelectorAll('button[data-date]').forEach((button) => {
+        button.addEventListener('click', () => {
+          onSelectDate(button.dataset.date || '');
+        });
+      });
+    }
+
+    function getCalendarDayState(schedule) {
+      if (!schedule) {
+        return { selectable: false, cellState: 'closed', mark: '－', ariaLabel: '休業日' };
+      }
+
+      if (!schedule.open) {
+        return { selectable: false, cellState: 'closed', mark: '－', ariaLabel: '休業日' };
+      }
+
+      if (schedule.fullyBooked || (Number(schedule.remainingCount) || 0) <= 0) {
+        return { selectable: false, cellState: 'closed', mark: '×', ariaLabel: '満席' };
+      }
+
+      return {
+        selectable: true,
+        cellState: 'open',
+        mark: '●',
+        ariaLabel: `開催日、残席${schedule.remainingCount}席`
+      };
     }
 
     async function selectDate(dateKey, preferredTime = '') {
       if (!isDateKey(dateKey)) return;
-      currentSelectedDate = dateKey;
-      currentMonth = startOfMonth(parseDateKey(dateKey));
+
+      selectedDateKey = dateKey;
+      viewMonth = startOfMonth(parseDateKey(dateKey));
       syncSelectedDate(dateKey);
       renderCalendars();
+      clearInvalid(reservationDateInput);
+
       await loadSlotsForDate(dateKey, preferredTime);
     }
 
     async function loadSlotsForDate(dateKey, preferredTime = '') {
       if (!dateKey) {
-        renderEmptySlots();
+        renderEmptySlots('日付を選択してください。');
+        renderTimeOptions([], null, '');
+        updateCountOptions(0, '');
         return;
       }
 
-      const requestId = ++slotRequestId;
+      const schedule = scheduleMap.get(dateKey) || null;
+      if (!schedule) {
+        renderEmptySlots('日付を選択してください。');
+        renderTimeOptions([], null, '');
+        updateCountOptions(0, '');
+        return;
+      }
+
+      const requestToken = ++slotRequestToken;
       if (slotCache.has(dateKey)) {
-        if (requestId === slotRequestId && currentSelectedDate === dateKey) {
+        if (requestToken === slotRequestToken && selectedDateKey === dateKey) {
           renderSlotsAndControls(dateKey, slotCache.get(dateKey) || [], preferredTime);
         }
         return;
@@ -443,60 +710,64 @@
       renderSlotLoading();
 
       try {
-        const response = await fetch(`/api/schedules/${encodeURIComponent(dateKey)}/slots`, { headers: { Accept: 'application/json' } });
+        const response = await fetch(`/api/schedules/${encodeURIComponent(dateKey)}/slots`, {
+          headers: { Accept: 'application/json' }
+        });
         const slots = await response.json().catch(() => []);
-        if (!response.ok) throw new Error('遨ｺ縺咲憾豕√・蜿門ｾ励↓螟ｱ謨励＠縺ｾ縺励◆縲・);
+
+        if (!response.ok) {
+          throw new Error('空き状況データの読み込みに失敗しました。');
+        }
 
         const normalizedSlots = Array.isArray(slots) ? slots : [];
         slotCache.set(dateKey, normalizedSlots);
-        if (requestId !== slotRequestId || currentSelectedDate !== dateKey) return;
+
+        if (requestToken !== slotRequestToken || selectedDateKey !== dateKey) return;
         renderSlotsAndControls(dateKey, normalizedSlots, preferredTime);
       } catch (error) {
         console.error(error);
-        if (requestId !== slotRequestId || currentSelectedDate !== dateKey) return;
-        renderEmptySlots();
+        if (requestToken !== slotRequestToken || selectedDateKey !== dateKey) return;
+        renderEmptySlots('空き状況データの読み込みに失敗しました。');
+        renderTimeOptions([], schedule, '');
+        updateCountOptions(0, '');
       }
     }
 
     function renderSlotsAndControls(dateKey, slots, preferredTime = '') {
-      renderScheduleSlots(dateKey, slots);
-      renderTimeOptions(slots, preferredTime);
+      const schedule = scheduleMap.get(dateKey) || null;
+      const selectedSlot = renderTimeOptions(slots, schedule, preferredTime);
+      renderScheduleSlots(dateKey, slots, schedule, selectedSlot ? selectedSlot.startTime : '');
+      updateCountOptions(selectedSlot ? selectedSlot.remainingCount : 0, reservationCountSelect ? reservationCountSelect.value : '');
     }
 
-    function renderScheduleSlots(dateKey, slots) {
+    function renderScheduleSlots(dateKey, slots, schedule, selectedTime = '') {
       if (!scheduleSlotList) return;
+
       if (!slots || !slots.length) {
-        scheduleSlotList.innerHTML = `
-          <li class="schedule__slot-item">
-            <span class="schedule__slot-link schedule__slot-link--disabled" aria-disabled="true">
-              <span class="schedule__slot-time">蜿嶺ｻ俶棧縺後≠繧翫∪縺帙ｓ</span>
-              <span class="schedule__slot-divider" aria-hidden="true"></span>
-              <span class="schedule__slot-status"><span class="schedule__slot-symbol">ﾃ・/span>遒ｺ隱堺ｸｭ</span>
-              <span class="schedule__slot-arrow" aria-hidden="true">窶ｺ</span>
-            </span>
-          </li>
-        `;
+        renderEmptySlots('選択できる時間帯がありません。');
         return;
       }
 
       scheduleSlotList.innerHTML = slots.map((slot) => {
-        const status = getSlotStatus(slot);
-        const tag = status.selectable ? 'a' : 'span';
-        const href = status.selectable ? ' href="#reservation"' : '';
-        const disabledAttrs = status.selectable ? '' : ' aria-disabled="true"';
+        const status = getSlotStatus(slot, schedule);
+        const tagName = status.selectable ? 'a' : 'span';
+        const selected = status.selectable && selectedTime && slot.startTime === selectedTime;
+        const linkAttrs = status.selectable
+          ? `href="#reservation" data-slot-time="${escapeHtml(slot.startTime)}" data-slot-date="${escapeHtml(dateKey)}"${selected ? ' aria-current="true"' : ''}`
+          : 'aria-disabled="true"';
         const disabledClass = status.selectable ? '' : ' schedule__slot-link--disabled';
+        const slotLabel = `${slot.startTime} ～ ${slot.endTime}`;
 
         return `
           <li class="schedule__slot-item">
-            <${tag}
+            <${tagName}
               class="schedule__slot-link${disabledClass}"
-              data-slot-time="${escapeHtml(slot.startTime)}"
-              data-slot-date="${escapeHtml(dateKey)}"${href}${disabledAttrs}>
-              <span class="schedule__slot-time">${escapeHtml(`${slot.startTime}縲・{slot.endTime}`)}</span>
+              ${linkAttrs}>
+              <span class="schedule__slot-time">${escapeHtml(slotLabel)}</span>
               <span class="schedule__slot-divider" aria-hidden="true"></span>
               <span class="schedule__slot-status"><span class="schedule__slot-symbol">${escapeHtml(status.symbol)}</span>${escapeHtml(status.label)}</span>
-              <span class="schedule__slot-arrow" aria-hidden="true">窶ｺ</span>
-            </${tag}>
+              <span class="schedule__slot-arrow" aria-hidden="true">→</span>
+            </${tagName}>
           </li>
         `;
       }).join('');
@@ -514,598 +785,279 @@
       });
     }
 
-    function renderTimeOptions(slots, preferredTime = '') {
+    function renderTimeOptions(slots, schedule, preferredTime = '') {
       if (!reservationTimeSelect) {
-        updateCountOptions(0, '');
-        return;
+        return null;
       }
 
-      const previousValue = preferredTime || reservationTimeSelect.value || '';
-      reservationTimeSelect.innerHTML = '';
+      const allSlots = Array.isArray(slots) ? slots : [];
+      const selectableSlots = allSlots.filter((slot) => isSlotSelectable(slot, schedule));
+      const currentValue = preferredTime || reservationTimeSelect.value || '';
+      const nextSlot = selectableSlots.find((slot) => slot.startTime === currentValue)
+        || selectableSlots[0]
+        || null;
 
-      const defaultOption = document.createElement('option');
-      defaultOption.value = '';
-      defaultOption.textContent = '驕ｸ謚槭＠縺ｦ縺上□縺輔＞';
-      reservationTimeSelect.appendChild(defaultOption);
-
-      if (!slots || !slots.length) {
-        reservationTimeSelect.disabled = true;
-        reservationTimeSelect.value = '';
-        updateCountOptions(0, '');
-        return;
-      }
-
-      slots.forEach((slot) => {
-        const option = document.createElement('option');
-        const status = getSlotStatus(slot);
-        option.value = slot.startTime;
-        option.textContent = `${slot.startTime}縲・{slot.endTime}・・{status.label}・荏;
-        option.disabled = !status.selectable;
-        reservationTimeSelect.appendChild(option);
+      const options = ['<option value="">時間帯を選択してください</option>'];
+      allSlots.forEach((slot) => {
+        const status = getSlotStatus(slot, schedule);
+        const label = `${slot.startTime} ～ ${slot.endTime}`;
+        const optionLabel = `${label}（${status.label}）`;
+        options.push(`<option value="${escapeHtml(slot.startTime)}"${status.selectable ? '' : ' disabled'}>${escapeHtml(optionLabel)}</option>`);
       });
 
-      reservationTimeSelect.disabled = false;
-      reservationTimeSelect.value = slots.some((slot) => slot.startTime === previousValue && getSlotStatus(slot).selectable)
-        ? previousValue
-        : '';
+      reservationTimeSelect.innerHTML = options.join('');
+      reservationTimeSelect.disabled = !selectableSlots.length;
+      reservationTimeSelect.value = nextSlot ? nextSlot.startTime : '';
+      clearInvalid(reservationTimeSelect);
 
-      const selectedSlot = getSelectedSlot(slots);
-      updateCountOptions(selectedSlot ? Number(selectedSlot.remainingCount || 0) : 0, reservationCountSelect ? reservationCountSelect.value : '');
+      return nextSlot;
     }
 
     function updateCountOptions(maxCount, preferredValue = '') {
       if (!reservationCountSelect) return;
-      const inquiryMode = isInquiryMode();
-      const countMax = Math.min(Math.max(Number(maxCount) || 0, 0), 10);
-      reservationCountSelect.innerHTML = '';
 
-      if (countMax <= 0) {
-        const option = document.createElement('option');
-        option.value = '';
-        option.textContent = '貅蟶ｭ縺ｧ縺・;
-        reservationCountSelect.appendChild(option);
-        reservationCountSelect.disabled = true;
-        reservationCountSelect.required = !inquiryMode;
+      const availableCount = Math.max(0, Math.min(MAX_RESERVATION_COUNT, Number(maxCount) || 0));
+      const currentValue = preferredValue || reservationCountSelect.value || '';
+
+      if (availableCount <= 0) {
+        reservationCountSelect.innerHTML = '<option value="">選択できません</option>';
         reservationCountSelect.value = '';
+        reservationCountSelect.disabled = true;
         return;
       }
 
-      const defaultOption = document.createElement('option');
-      defaultOption.value = '';
-      defaultOption.textContent = '驕ｸ謚槭＠縺ｦ縺上□縺輔＞';
-      reservationCountSelect.appendChild(defaultOption);
-
-      for (let count = 1; count <= countMax; count += 1) {
-        const option = document.createElement('option');
-        option.value = String(count);
-        option.textContent = `${count}蜷港;
-        reservationCountSelect.appendChild(option);
+      const options = ['<option value="">人数を選択してください</option>'];
+      for (let count = 1; count <= availableCount; count += 1) {
+        options.push(`<option value="${count}">${count}名</option>`);
       }
 
+      reservationCountSelect.innerHTML = options.join('');
       reservationCountSelect.disabled = false;
-      reservationCountSelect.required = !inquiryMode;
-      reservationCountSelect.value = preferredValue && Number(preferredValue) <= countMax ? String(preferredValue) : '';
-    }
-
-    function renderEmptySlots() {
-      renderScheduleSlots(currentSelectedDate || '', []);
-      renderTimeOptions([], '');
+      reservationCountSelect.value = String(
+        currentValue && Number(currentValue) >= 1 && Number(currentValue) <= availableCount
+          ? Number(currentValue)
+          : 1
+      );
+      clearInvalid(reservationCountSelect);
     }
 
     function renderSlotLoading() {
-      if (scheduleSlotList) {
-        scheduleSlotList.innerHTML = `
-          <li class="schedule__slot-item">
-            <span class="schedule__slot-link schedule__slot-link--disabled" aria-disabled="true">
-              <span class="schedule__slot-time">遨ｺ縺咲憾豕√ｒ隱ｭ縺ｿ霎ｼ縺ｿ荳ｭ...</span>
-              <span class="schedule__slot-divider" aria-hidden="true"></span>
-              <span class="schedule__slot-status"><span class="schedule__slot-symbol">窶ｦ</span>遒ｺ隱堺ｸｭ</span>
-              <span class="schedule__slot-arrow" aria-hidden="true">窶ｺ</span>
-            </span>
-          </li>
-        `;
-      }
-
-      if (reservationTimeSelect) {
-        reservationTimeSelect.innerHTML = '<option value="">隱ｭ縺ｿ霎ｼ縺ｿ荳ｭ...</option>';
-        reservationTimeSelect.disabled = true;
-      }
-
-      if (reservationCountSelect) {
-        reservationCountSelect.innerHTML = '<option value="">隱ｭ縺ｿ霎ｼ縺ｿ荳ｭ...</option>';
-        reservationCountSelect.disabled = true;
-      }
-    }
-
-    function syncSelectedDate(dateKey) {
-      const label = dateKey ? formatDateKey(dateKey) : '窶・;
-      if (reservationDateInput) reservationDateInput.value = dateKey || '';
-      if (reservationSelectedDateText) reservationSelectedDateText.textContent = label;
-      if (scheduleSelectedDateText) scheduleSelectedDateText.textContent = label;
-    }
-
-    function chooseDefaultDate() {
-      const firstOpen = findFirstSchedule((schedule) => Boolean(schedule.open) && Number(schedule.remainingCount || 0) > 0);
-      if (firstOpen) return firstOpen.date;
-
-      const firstOpenAny = findFirstSchedule((schedule) => Boolean(schedule.open));
-      if (firstOpenAny) return firstOpenAny.date;
-
-      const firstAny = findFirstSchedule(() => true);
-      if (firstAny) return firstAny.date;
-
-      return chooseFallbackDate();
-    }
-
-    function chooseFallbackDate() {
-      return toDateKey(new Date());
-    }
-
-    function findFirstSchedule(predicate) {
-      for (const [date, schedule] of scheduleMap.entries()) {
-        if (predicate(schedule, date)) return { date, schedule };
-      }
-      return null;
-    }
-
-    function getCalendarStatus(schedule) {
-      if (!schedule || !schedule.open) {
-        return { open: false, label: '莨第･ｭ譌･', mark: 'ﾃ・ };
-      }
-
-      const remaining = Number(schedule.remainingCount || 0);
-      const fullyBooked = remaining <= 0 || Boolean(schedule.fullyBooked);
-      return { open: true, label: fullyBooked ? '貅蟶ｭ' : '莠育ｴ・庄', mark: fullyBooked ? '貅' : '笳・ };
-    }
-
-    function renderCalendar({ body, monthLabel, caption, prefix, selectedDate, monthDate, onSelectDate }) {
-      if (!body || !monthLabel || !monthDate) return;
-
-      const year = monthDate.getFullYear();
-      const month = monthDate.getMonth();
-      const totalDays = new Date(year, month + 1, 0).getDate();
-      const firstColumn = (new Date(year, month, 1).getDay() + 6) % 7;
-
-      monthLabel.textContent = formatMonthLabel(monthDate);
-      if (caption) caption.textContent = `${formatMonthLabel(monthDate)}縺ｮ髢句ぎ譌･繧ｫ繝ｬ繝ｳ繝繝ｼ`;
-
-      const rows = [];
-      let day = 1;
-
-      for (let row = 0; row < 6; row += 1) {
-        const cells = [];
-
-        for (let column = 0; column < 7; column += 1) {
-          if ((row === 0 && column < firstColumn) || day > totalDays) {
-            cells.push(`<td class="${prefix}__calendar-cell ${prefix}__calendar-cell--empty"></td>`);
-            continue;
-          }
-
-          const date = new Date(year, month, day);
-          const dateKey = toDateKey(date);
-          const schedule = scheduleMap.get(dateKey);
-          const status = getCalendarStatus(schedule, date);
-          const isSelected = dateKey === selectedDate;
-          const classes = [
-            `${prefix}__calendar-cell`,
-            status.open ? `${prefix}__calendar-cell--open` : `${prefix}__calendar-cell--closed`,
-            isSelected ? `${prefix}__calendar-cell--selected` : ''
-          ];
-
-          if (column === 5) classes.push(`${prefix}__calendar-cell--sat`);
-          if (column === 6) classes.push(`${prefix}__calendar-cell--sun`);
-          if (schedule && schedule.open && column !== 5 && column !== 6) classes.push(`${prefix}__calendar-cell--holiday`);
-
-          const cellClass = classes.filter(Boolean).join(' ');
-          const ariaLabel = `${formatDateKey(dateKey)} ${status.label}`;
-
-          if (status.open) {
-            cells.push(`
-              <td class="${cellClass}">
-                <button class="${prefix}__calendar-date" type="button" data-date="${dateKey}" aria-label="${escapeHtml(ariaLabel)}" aria-pressed="${String(isSelected)}">
-                  <span class="${prefix}__calendar-number">${day}</span>
-                  <span class="${prefix}__calendar-mark">${escapeHtml(status.mark)}</span>
-                </button>
-              </td>
-            `);
-          } else {
-            cells.push(`
-              <td class="${cellClass}">
-                <span class="${prefix}__calendar-date" aria-label="${escapeHtml(ariaLabel)}">
-                  <span class="${prefix}__calendar-number">${day}</span>
-                  <span class="${prefix}__calendar-mark">${escapeHtml(status.mark)}</span>
-                </span>
-              </td>
-            `);
-          }
-
-          day += 1;
-        }
-
-        rows.push(`<tr class="${prefix}__calendar-row">${cells.join('')}</tr>`);
-        if (day > totalDays) break;
-      }
-
-      body.innerHTML = rows.join('');
-      body.querySelectorAll('[data-date]').forEach((button) => {
-        button.addEventListener('click', () => void onSelectDate(button.dataset.date));
-      });
-    }
-
-    function getSlotStatus(slot) {
-      const active = Boolean(slot && slot.active);
-      const remaining = Number(slot && slot.remainingCount ? slot.remainingCount : 0);
-
-      if (!active) return { label: '蜿嶺ｻ伜●豁｢', symbol: 'ﾃ・, selectable: false };
-      if (remaining <= 0 || slot.fullyBooked) return { label: '貅蟶ｭ', symbol: 'ﾃ・, selectable: false };
-      return { label: `谿九ｊ${remaining}蜷港, symbol: remaining <= 3 ? '笆ｳ' : '笳・, selectable: true };
-    }
-
-    function getSelectedSlot(slots = getSlotsForCurrentDate()) {
-      if (!reservationTimeSelect || !slots.length) return null;
-      return slots.find((slot) => slot.startTime === reservationTimeSelect.value && getSlotStatus(slot).selectable) || null;
-    }
-
-    function getSlotsForCurrentDate() {
-      return currentSelectedDate ? (slotCache.get(currentSelectedDate) || []) : [];
-    }
-
-    function isInquiryMode() {
-      return Boolean(inquiryCheckbox && inquiryCheckbox.checked);
-    }
-
-    function isScheduleSelectable(dateKey) {
-      const schedule = scheduleMap.get(dateKey);
-      return Boolean(schedule && schedule.open);
-    }
-
-    function formatDateKey(dateKey) {
-      if (!isDateKey(dateKey)) return String(dateKey || '');
-      const date = parseDateKey(dateKey);
-      return `${date.getFullYear()}蟷ｴ${date.getMonth() + 1}譛・{date.getDate()}譌･(${dayNames[date.getDay()]})`;
-    }
-
-    function formatMonthLabel(date) {
-      return `${date.getFullYear()}蟷ｴ${date.getMonth() + 1}譛・;
-    }
-
-    function parseDateKey(dateKey) {
-      const [year, month, day] = String(dateKey || '').split('-').map((part) => Number(part));
-      return new Date(year, month - 1, day);
-    }
-
-    function startOfMonth(date) {
-      return new Date(date.getFullYear(), date.getMonth(), 1);
-    }
-
-    function toDateKey(date) {
-      return [
-        date.getFullYear(),
-        String(date.getMonth() + 1).padStart(2, '0'),
-        String(date.getDate()).padStart(2, '0')
-      ].join('-');
-    }
-
-    function isDateKey(value) {
-      return /^\d{4}-\d{2}-\d{2}$/.test(String(value || ''));
-    }
-
-    function escapeHtml(value) {
-      return String(value ?? '')
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
-    }
-
-    function formatCurrency(value) {
-      return new Intl.NumberFormat('ja-JP').format(value);
-    }
-
-    function confirmRow(label, value, extraClass = '') {
-      return `
-        <div class="reservation-contact__confirm-row${extraClass ? ` ${extraClass}` : ''}">
-          <dt class="reservation-contact__confirm-label">${escapeHtml(label)}</dt>
-          <dd class="reservation-contact__confirm-value">${escapeHtml(value || '窶・)}</dd>
-        </div>
+      if (!scheduleSlotList) return;
+      scheduleSlotList.innerHTML = `
+        <li class="schedule__slot-item">
+          <span class="schedule__slot-link schedule__slot-link--disabled" aria-disabled="true">
+            <span class="schedule__slot-time">読み込み中...</span>
+            <span class="schedule__slot-divider" aria-hidden="true"></span>
+            <span class="schedule__slot-status"><span class="schedule__slot-symbol">...</span>空き状況を読み込み中</span>
+            <span class="schedule__slot-arrow" aria-hidden="true">→</span>
+          </span>
+        </li>
       `;
     }
 
-    function getFieldWrap(field) {
-      if (!form || !field) return null;
-      if (field === reservationDateInput) return form.querySelector('.reservation-contact__field--calendar');
-      if (field === privacyCheckbox) return form.querySelector('.reservation-contact__privacy');
-      return field.closest('.reservation-contact__field');
+    function renderEmptySlots(message) {
+      if (!scheduleSlotList) return;
+      scheduleSlotList.innerHTML = `
+        <li class="schedule__slot-item">
+          <span class="schedule__slot-link schedule__slot-link--disabled" aria-disabled="true">
+            <span class="schedule__slot-time">${escapeHtml(message)}</span>
+            <span class="schedule__slot-divider" aria-hidden="true"></span>
+            <span class="schedule__slot-status"><span class="schedule__slot-symbol">－</span>－</span>
+            <span class="schedule__slot-arrow" aria-hidden="true">→</span>
+          </span>
+        </li>
+      `;
     }
 
-    function isValidEmailValue(value) {
-      const trimmed = String(value || '').trim();
-      return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmed);
+    function getSlotStatus(slot, schedule) {
+      if (!schedule || !schedule.open) {
+        return { selectable: false, symbol: '×', label: '空きなし' };
+      }
+
+      if (!slot.active) {
+        return { selectable: false, symbol: '×', label: '空きなし' };
+      }
+
+      if (slot.fullyBooked || (Number(slot.remainingCount) || 0) <= 0) {
+        return { selectable: false, symbol: '×', label: '空きなし' };
+      }
+
+      if ((Number(slot.remainingCount) || 0) <= LOW_AVAILABILITY_THRESHOLD) {
+        return {
+          selectable: true,
+          symbol: '△',
+          label: '残り僅か'
+        };
+      }
+
+      return {
+        selectable: true,
+        symbol: '○',
+        label: '空きあり'
+      };
+    }
+
+    function isSlotSelectable(slot, schedule) {
+      return getSlotStatus(slot, schedule).selectable;
+    }
+
+    function currentAvailableSeatCount() {
+      const selectedSlot = getSelectedSlot();
+      return selectedSlot ? Number(selectedSlot.remainingCount) || 0 : 0;
+    }
+
+    function getSelectedSlot() {
+      if (!selectedDateKey || !reservationTimeSelect) return null;
+      const slots = slotCache.get(selectedDateKey) || [];
+      return slots.find((slot) => slot.startTime === reservationTimeSelect.value) || null;
     }
 
     function buildPayload() {
       const inquiryMode = isInquiryMode();
-      const payload = {
-        inquiryOnly: inquiryMode,
-        customerFamilyName: reservationValue('#customer-family-name'),
-        customerGivenName: reservationValue('#customer-given-name'),
-        customerFamilyKana: reservationValue('#customer-family-kana'),
-        customerGivenKana: reservationValue('#customer-given-kana'),
-        customerEmail: reservationValue('#customer-email'),
-        customerTel: reservationValue('#customer-tel') || null,
-        customerMessage: reservationValue('#customer-message') || null,
-        privacyAccepted: Boolean(privacyCheckbox && privacyCheckbox.checked)
+      return {
+        inquiry_only: inquiryMode,
+        reservation_date: inquiryMode ? null : selectedDateKey,
+        reservation_time: inquiryMode ? null : (reservationTimeSelect ? reservationTimeSelect.value || null : null),
+        reservation_count: inquiryMode ? null : (reservationCountSelect && reservationCountSelect.value ? Number(reservationCountSelect.value) : null),
+        customer_family_name: form ? form.querySelector('#customer-family-name')?.value.trim() || '' : '',
+        customer_given_name: form ? form.querySelector('#customer-given-name')?.value.trim() || '' : '',
+        customer_family_kana: form ? form.querySelector('#customer-family-kana')?.value.trim() || '' : '',
+        customer_given_kana: form ? form.querySelector('#customer-given-kana')?.value.trim() || '' : '',
+        customer_email: form ? form.querySelector('#customer-email')?.value.trim() || '' : '',
+        customer_tel: form ? form.querySelector('#customer-tel')?.value.trim() || '' : '',
+        customer_message: messageTextarea ? messageTextarea.value.trim() : '',
+        privacy: Boolean(privacyCheckbox && privacyCheckbox.checked)
       };
-
-      if (!inquiryMode) {
-        payload.reservationDate = currentSelectedDate || null;
-        payload.reservationTime = reservationTimeSelect ? reservationTimeSelect.value || null : null;
-        payload.reservationCount = reservationCountSelect ? Number(reservationCountSelect.value || 0) || null : null;
-      }
-
-      return payload;
-    }
-
-    function reservationValue(selector) {
-      const field = form ? form.querySelector(selector) : null;
-      return String(field && field.value ? field.value : '').trim();
-    }
-
-    function updateCountOptions(maxCount, preferredValue = '') {
-      if (!reservationCountSelect) return;
-      const inquiryMode = isInquiryMode();
-      const countMax = Math.min(Math.max(Number(maxCount) || 0, 0), 10);
-      reservationCountSelect.innerHTML = '';
-
-      if (countMax <= 0) {
-        const soldOut = document.createElement('option');
-        soldOut.value = '';
-        soldOut.textContent = '貅蟶ｭ縺ｧ縺・;
-        reservationCountSelect.appendChild(soldOut);
-        reservationCountSelect.disabled = true;
-        reservationCountSelect.required = !inquiryMode;
-        reservationCountSelect.value = '';
-        return;
-      }
-
-      const defaultOption = document.createElement('option');
-      defaultOption.value = '';
-      defaultOption.textContent = '驕ｸ謚槭＠縺ｦ縺上□縺輔＞';
-      reservationCountSelect.appendChild(defaultOption);
-
-      for (let count = 1; count <= countMax; count += 1) {
-        const option = document.createElement('option');
-        option.value = String(count);
-        option.textContent = `${count}蜷港;
-        reservationCountSelect.appendChild(option);
-      }
-
-      reservationCountSelect.disabled = false;
-      reservationCountSelect.required = !inquiryMode;
-      reservationCountSelect.value = preferredValue && Number(preferredValue) <= countMax ? String(preferredValue) : '';
-    }
-
-    function renderTimeOptions(slots, preferredTime = '') {
-      if (!reservationTimeSelect) {
-        updateCountOptions(0, '');
-        return;
-      }
-
-      const previousValue = preferredTime || reservationTimeSelect.value || '';
-      reservationTimeSelect.innerHTML = '';
-
-      const defaultOption = document.createElement('option');
-      defaultOption.value = '';
-      defaultOption.textContent = '驕ｸ謚槭＠縺ｦ縺上□縺輔＞';
-      reservationTimeSelect.appendChild(defaultOption);
-
-      if (!slots || !slots.length) {
-        reservationTimeSelect.disabled = true;
-        reservationTimeSelect.value = '';
-        updateCountOptions(0, '');
-        return;
-      }
-
-      slots.forEach((slot) => {
-        const option = document.createElement('option');
-        const status = getSlotStatus(slot);
-        option.value = slot.startTime;
-        option.textContent = `${slot.startTime}縲・{slot.endTime}・・{status.label}・荏;
-        option.disabled = !status.selectable;
-        reservationTimeSelect.appendChild(option);
-      });
-
-      reservationTimeSelect.disabled = false;
-      reservationTimeSelect.value = slots.some((slot) => slot.startTime === previousValue && getSlotStatus(slot).selectable)
-        ? previousValue
-        : '';
-
-      const selectedSlot = getSelectedSlot(slots);
-      updateCountOptions(selectedSlot ? Number(selectedSlot.remainingCount || 0) : 0, reservationCountSelect ? reservationCountSelect.value : '');
-    }
-
-    function renderScheduleSlots(dateKey, slots) {
-      if (!scheduleSlotList) return;
-      if (!slots || !slots.length) {
-        scheduleSlotList.innerHTML = `
-          <li class="schedule__slot-item">
-            <span class="schedule__slot-link schedule__slot-link--disabled" aria-disabled="true">
-              <span class="schedule__slot-time">蜿嶺ｻ俶棧縺後≠繧翫∪縺帙ｓ</span>
-              <span class="schedule__slot-divider" aria-hidden="true"></span>
-              <span class="schedule__slot-status"><span class="schedule__slot-symbol">ﾃ・/span>遒ｺ隱堺ｸｭ</span>
-              <span class="schedule__slot-arrow" aria-hidden="true">窶ｺ</span>
-            </span>
-          </li>
-        `;
-        return;
-      }
-
-      scheduleSlotList.innerHTML = slots.map((slot) => {
-        const status = getSlotStatus(slot);
-        const tag = status.selectable ? 'a' : 'span';
-        const href = status.selectable ? ' href="#reservation"' : '';
-        const disabledAttrs = status.selectable ? '' : ' aria-disabled="true"';
-        const disabledClass = status.selectable ? '' : ' schedule__slot-link--disabled';
-        return `
-          <li class="schedule__slot-item">
-            <${tag}
-              class="schedule__slot-link${disabledClass}"
-              data-slot-time="${escapeHtml(slot.startTime)}"
-              data-slot-date="${escapeHtml(dateKey)}"${href}${disabledAttrs}>
-              <span class="schedule__slot-time">${escapeHtml(`${slot.startTime}縲・{slot.endTime}`)}</span>
-              <span class="schedule__slot-divider" aria-hidden="true"></span>
-              <span class="schedule__slot-status"><span class="schedule__slot-symbol">${escapeHtml(status.symbol)}</span>${escapeHtml(status.label)}</span>
-              <span class="schedule__slot-arrow" aria-hidden="true">窶ｺ</span>
-            </${tag}>
-          </li>
-        `;
-      }).join('');
-
-      scheduleSlotList.querySelectorAll('a[data-slot-time]').forEach((link) => {
-        link.addEventListener('click', (event) => {
-          event.preventDefault();
-          void selectDate(link.dataset.slotDate || dateKey, link.dataset.slotTime || '');
-          if (reservationSection) reservationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        });
-      });
-    }
-
-    function renderEmptySlots() {
-      renderScheduleSlots(currentSelectedDate || '', []);
-      renderTimeOptions([], '');
-    }
-
-    function renderSlotLoading() {
-      if (scheduleSlotList) {
-        scheduleSlotList.innerHTML = `
-          <li class="schedule__slot-item">
-            <span class="schedule__slot-link schedule__slot-link--disabled" aria-disabled="true">
-              <span class="schedule__slot-time">遨ｺ縺咲憾豕√ｒ隱ｭ縺ｿ霎ｼ縺ｿ荳ｭ...</span>
-              <span class="schedule__slot-divider" aria-hidden="true"></span>
-              <span class="schedule__slot-status"><span class="schedule__slot-symbol">窶ｦ</span>遒ｺ隱堺ｸｭ</span>
-              <span class="schedule__slot-arrow" aria-hidden="true">窶ｺ</span>
-            </span>
-          </li>
-        `;
-      }
-
-      if (reservationTimeSelect) {
-        reservationTimeSelect.innerHTML = '<option value="">隱ｭ縺ｿ霎ｼ縺ｿ荳ｭ...</option>';
-        reservationTimeSelect.disabled = true;
-      }
-
-      if (reservationCountSelect) {
-        reservationCountSelect.innerHTML = '<option value="">隱ｭ縺ｿ霎ｼ縺ｿ荳ｭ...</option>';
-        reservationCountSelect.disabled = true;
-      }
-    }
-
-    function getSelectedSlot(slots = getSlotsForCurrentDate()) {
-      if (!reservationTimeSelect || !slots.length) return null;
-      return slots.find((slot) => slot.startTime === reservationTimeSelect.value && getSlotStatus(slot).selectable) || null;
-    }
-
-    function getSlotsForCurrentDate() {
-      return currentSelectedDate ? (slotCache.get(currentSelectedDate) || []) : [];
-    }
-
-    function isDateKey(value) {
-      return /^\d{4}-\d{2}-\d{2}$/.test(String(value || ''));
-    }
-
-    function parseDateKey(dateKey) {
-      const [year, month, day] = String(dateKey || '').split('-').map((part) => Number(part));
-      return new Date(year, month - 1, day);
-    }
-
-    function toDateKey(date) {
-      return [
-        date.getFullYear(),
-        String(date.getMonth() + 1).padStart(2, '0'),
-        String(date.getDate()).padStart(2, '0')
-      ].join('-');
-    }
-
-    function startOfMonth(date) {
-      return new Date(date.getFullYear(), date.getMonth(), 1);
-    }
-
-    function formatMonthLabel(date) {
-      return `${date.getFullYear()}蟷ｴ${date.getMonth() + 1}譛・;
-    }
-
-    function formatDateKey(dateKey) {
-      if (!isDateKey(dateKey)) return String(dateKey || '');
-      const date = parseDateKey(dateKey);
-      return `${date.getFullYear()}蟷ｴ${date.getMonth() + 1}譛・{date.getDate()}譌･(${dayNames[date.getDay()]})`;
-    }
-
-    function formatCurrency(value) {
-      return new Intl.NumberFormat('ja-JP').format(value);
-    }
-
-    function escapeHtml(value) {
-      return String(value ?? '')
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
-    }
-
-    function isValidEmailValue(value) {
-      const trimmed = String(value || '').trim();
-      return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmed);
     }
 
     function isInquiryMode() {
       return Boolean(inquiryCheckbox && inquiryCheckbox.checked);
     }
 
+    function syncSelectedDate(dateKey) {
+      const label = dateKey ? formatDateLabel(dateKey) : '未選択';
+      if (reservationDateInput) reservationDateInput.value = dateKey || '';
+      if (reservationSelectedDateText) reservationSelectedDateText.textContent = label;
+      if (scheduleSelectedDateText) scheduleSelectedDateText.textContent = label;
+      if (dateKey) clearInvalid(reservationDateInput);
+    }
+
+    function updateMonthControls() {
+      const canGoPrev = compareMonths(viewMonth, minScheduleMonth) > 0;
+      const canGoNext = compareMonths(viewMonth, maxScheduleMonth) < 0;
+
+      setButtonState(schedulePrev, !canGoPrev);
+      setButtonState(reservationPrev, !canGoPrev);
+      setButtonState(scheduleNext, !canGoNext);
+      setButtonState(reservationNext, !canGoNext);
+    }
+
+    function setButtonState(button, disabled) {
+      if (!button) return;
+      button.disabled = disabled;
+      button.setAttribute('aria-disabled', String(disabled));
+    }
+
+    function clearInvalid(field) {
+      const wrap = getFieldWrap(field);
+      if (wrap) wrap.classList.remove('is-invalid');
+    }
+
+    function markInvalid(field) {
+      const wrap = getFieldWrap(field);
+      if (wrap) wrap.classList.add('is-invalid');
+    }
+
     function getFieldWrap(field) {
-      if (!form || !field) return null;
-      if (field === reservationDateInput) return form.querySelector('.reservation-contact__field--calendar');
-      if (field === privacyCheckbox) return form.querySelector('.reservation-contact__privacy');
-      return field.closest('.reservation-contact__field');
+      if (!field) return null;
+      return field.closest('.reservation-contact__field, .reservation-contact__privacy');
     }
 
     function confirmRow(label, value, extraClass = '') {
       return `
-        <div class="reservation-contact__confirm-row${extraClass ? ` ${extraClass}` : ''}">
-          <dt class="reservation-contact__confirm-label">${escapeHtml(label)}</dt>
-          <dd class="reservation-contact__confirm-value">${escapeHtml(value || '窶・)}</dd>
+        <div class="reservation-contact__confirm-row ${extraClass}">
+          <div class="reservation-contact__confirm-label">${escapeHtml(label)}</div>
+          <div class="reservation-contact__confirm-value">${escapeHtml(value)}</div>
         </div>
       `;
     }
 
-    function syncSelectedDate(dateKey) {
-      const label = dateKey ? formatDateKey(dateKey) : '窶・;
-      if (reservationDateInput) reservationDateInput.value = dateKey || '';
-      if (reservationSelectedDateText) reservationSelectedDateText.textContent = label;
-      if (scheduleSelectedDateText) scheduleSelectedDateText.textContent = label;
+    function compareMonths(left, right) {
+      const leftValue = left.getFullYear() * 12 + left.getMonth();
+      const rightValue = right.getFullYear() * 12 + right.getMonth();
+      return leftValue - rightValue;
     }
 
-    function chooseDefaultDate() {
-      const firstOpen = findFirstSchedule((schedule) => Boolean(schedule.open) && Number(schedule.remainingCount || 0) > 0);
-      if (firstOpen) return firstOpen.date;
-      const anyOpen = findFirstSchedule((schedule) => Boolean(schedule.open));
-      if (anyOpen) return anyOpen.date;
-      const any = findFirstSchedule(() => true);
-      if (any) return any.date;
-      return chooseFallbackDate();
+    function addMonths(date, delta) {
+      return startOfMonth(new Date(date.getFullYear(), date.getMonth() + delta, 1));
     }
 
-    function chooseFallbackDate() {
-      return toDateKey(new Date());
+    function startOfMonth(date) {
+      return new Date(date.getFullYear(), date.getMonth(), 1);
     }
 
-    function findFirstSchedule(predicate) {
-      for (const [date, schedule] of scheduleMap.entries()) {
-        if (predicate(schedule, date)) return { date, schedule };
-      }
-      return null;
+    function parseDateKey(dateKey) {
+      if (!isDateKey(dateKey)) return null;
+      const [year, month, day] = dateKey.split('-').map(Number);
+      return new Date(year, month - 1, day);
     }
 
+    function toDateKey(date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+
+    function isDateKey(value) {
+      return typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value);
+    }
+
+    function formatDateLabel(dateKey) {
+      const date = parseDateKey(dateKey);
+      if (!date) return '';
+      const year = date.getFullYear();
+      const month = date.getMonth() + 1;
+      const day = date.getDate();
+      return `${year}年${month}月${day}日（${WEEKDAY_NAMES[date.getDay()]}）`;
+    }
+
+    function formatMonthLabel(date) {
+      const year = date.getFullYear();
+      const month = date.getMonth() + 1;
+      return `${year}年${month}月`;
+    }
+
+    function formatMoney(amount) {
+      return new Intl.NumberFormat('ja-JP').format(amount);
+    }
+
+    function clamp(value, min, max) {
+      return Math.min(Math.max(value, min), max);
+    }
+
+    function isElementInViewport(element) {
+      const rect = element.getBoundingClientRect();
+      return rect.top < window.innerHeight * 0.88 && rect.bottom > 0;
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? '').replace(/[&<>"']/g, (character) => {
+        switch (character) {
+          case '&':
+            return '&amp;';
+          case '<':
+            return '&lt;';
+          case '>':
+            return '&gt;';
+          case '"':
+            return '&quot;';
+          case '\'':
+            return '&#39;';
+          default:
+            return character;
+        }
+      });
+    }
   });
 })();
