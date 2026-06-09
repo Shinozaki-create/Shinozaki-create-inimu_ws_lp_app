@@ -33,7 +33,13 @@ class PublicApiControllerTest {
     void slotsApiReturnsSlots() throws Exception {
         mockMvc.perform(get("/api/schedules/2026-06-06/slots"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].startTime").value("11:00"));
+                .andExpect(jsonPath("$[0].startTime").value("11:00"))
+                .andExpect(jsonPath("$[1].startTime").value("13:00"))
+                .andExpect(jsonPath("$[1].remainingCount").value(2))
+                .andExpect(jsonPath("$[1].fullyBooked").value(false))
+                .andExpect(jsonPath("$[2].startTime").value("15:00"))
+                .andExpect(jsonPath("$[2].remainingCount").value(0))
+                .andExpect(jsonPath("$[2].fullyBooked").value(true));
     }
 
     @Test
@@ -52,7 +58,7 @@ class PublicApiControllerTest {
                                   "customerGivenKana": "ハナコ",
                                   "customerEmail": "hanako@example.com",
                                   "customerTel": "09012345678",
-                                  "customerMessage": "友人と参加します",
+                                  "customerMessage": "2名で予約します。",
                                   "privacyAccepted": true
                                 }
                                 """))
@@ -74,7 +80,7 @@ class PublicApiControllerTest {
                                   "customer_given_kana": "ハナコ",
                                   "customer_email": "hanako@example.com",
                                   "customer_tel": "09012345678",
-                                  "customer_message": "開催内容について質問があります",
+                                  "customer_message": "日程について教えてください。",
                                   "privacy": true
                                 }
                                 """))

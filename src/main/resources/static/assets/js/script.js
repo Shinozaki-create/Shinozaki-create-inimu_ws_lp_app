@@ -587,7 +587,7 @@
       const year = monthDate.getFullYear();
       const monthIndex = monthDate.getMonth();
       const firstDay = new Date(year, monthIndex, 1);
-      const firstWeekday = firstDay.getDay();
+      const firstWeekday = (firstDay.getDay() + 6) % 7;
       const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
       const rowCount = Math.ceil((firstWeekday + daysInMonth) / 7);
 
@@ -610,8 +610,8 @@
           const dayClasses = [
             `${baseClass}__calendar-cell`,
             `${baseClass}__calendar-cell--${dayState.cellState}`,
-            columnIndex === 0 ? `${baseClass}__calendar-cell--sun` : '',
-            columnIndex === 6 ? `${baseClass}__calendar-cell--sat` : '',
+            columnIndex === 5 ? `${baseClass}__calendar-cell--sat` : '',
+            columnIndex === 6 ? `${baseClass}__calendar-cell--sun` : '',
             isSelected ? `${baseClass}__calendar-cell--selected` : ''
           ].filter(Boolean).join(' ');
 

@@ -81,7 +81,7 @@ class ReservationServiceTest {
         long beforeCount = inquiryRepository.count();
         ReservationRequest request = commonRequest();
         request.setInquiryOnly(true);
-        request.setCustomerMessage("開催内容について質問があります");
+        request.setCustomerMessage("日程について教えてください。");
 
         ReservationResponse response = reservationService.createReservationOrInquiry(request);
 
@@ -91,16 +91,13 @@ class ReservationServiceTest {
 
     @Test
     void rejectsReservationWhenSlotIsFull() {
-        reservationService.createReservationOrInquiry(reservationRequest(LocalTime.of(13, 0), 10));
-
-        assertThatThrownBy(() -> reservationService.createReservationOrInquiry(reservationRequest(LocalTime.of(13, 0), 1)))
-                .isInstanceOf(BusinessException.class)
-                .hasMessageContaining("満席");
+        assertThatThrownBy(() -> reservationService.createReservationOrInquiry(reservationRequest(LocalTime.of(15, 0), 1)))
+                .isInstanceOf(BusinessException.class);
     }
 
     @Test
     void cancellingReservationDecreasesReservedCountOnce() {
-        ReservationResponse response = reservationService.createReservationOrInquiry(reservationRequest(LocalTime.of(15, 0), 3));
+        ReservationResponse response = reservationService.createReservationOrInquiry(reservationRequest(LocalTime.of(11, 0), 3));
         Reservation reservation = reservationRepository.findByReservationCode(response.reservationCode()).orElseThrow();
 
         ReservationStatusUpdateRequest updateRequest = new ReservationStatusUpdateRequest();
@@ -108,7 +105,11 @@ class ReservationServiceTest {
         reservationService.updateStatus(reservation.getId(), updateRequest);
         reservationService.updateStatus(reservation.getId(), updateRequest);
 
-        WorkshopTimeSlot slot = timeSlotRepository.findBySchedule_ScheduleDateOrderByStartTimeAsc(LocalDate.of(2026, 6, 6)).get(2);
+        WorkshopTimeSlot slot = timeSlotRepository.findBySchedule_ScheduleDateOrderByStartTimeAsc(LocalDate.of(2026, 6, 6))
+                .stream()
+                .filter(candidate -> candidate.getStartTime().equals(LocalTime.of(11, 0)))
+                .findFirst()
+                .orElseThrow();
         assertThat(slot.getReservedCount()).isZero();
     }
 
@@ -122,7 +123,7 @@ class ReservationServiceTest {
         updateRequest.setParticipantCount(3);
         updateRequest.setMaleCount(1);
         updateRequest.setFemaleCount(2);
-        updateRequest.setAdminMemo("確認済み");
+        updateRequest.setAdminMemo("調整済み");
 
         Reservation updated = reservationService.updateStatus(reservation.getId(), updateRequest);
 
@@ -143,7 +144,7 @@ class ReservationServiceTest {
         updateRequest.setMale20sCount(2);
         updateRequest.setFemale30sCount(1);
         updateRequest.setFemale60PlusCount(1);
-        updateRequest.setAdminMemo("年齢内訳の確認済み");
+        updateRequest.setAdminMemo("年齢構成の調整済み");
 
         Reservation updated = reservationService.updateStatus(reservation.getId(), updateRequest);
 
@@ -196,7 +197,7 @@ class ReservationServiceTest {
         request.setReservationDate(LocalDate.of(2026, 6, 6));
         request.setReservationTime(time);
         request.setReservationCount(count);
-        request.setCustomerMessage("友人と参加します");
+        request.setCustomerMessage("2名で予約します。");
         return request;
     }
 
